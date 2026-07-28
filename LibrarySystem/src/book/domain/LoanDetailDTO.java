@@ -6,7 +6,7 @@ public class LoanDetailDTO {
 	private int loan_detail_no;
 	private int loan_no;
 	private String book_id;
-	private boolean returned_books;
+	private boolean return_stat;
 	
 	
 	//method
@@ -28,11 +28,13 @@ public class LoanDetailDTO {
 	public void setBook_id(String book_id) {
 		this.book_id = book_id;
 	}
-	public boolean isReturned_books() {
-		return returned_books;
+	public boolean isReturn_stat() {
+		return return_stat;
 	}
-	public void setReturned_books(boolean returned_books) {
-		this.returned_books = returned_books;
-	}
+	public void setReturn_stat(boolean return_stat) {
+		this.return_stat = return_stat;
+	}	
+	
+	
 	
 }
