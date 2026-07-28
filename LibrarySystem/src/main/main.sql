@@ -5,13 +5,13 @@ SHOW con_name;
 
 -- 사서 테이블 생성
 create table tbl_librarian
-(lib_seq        number           not null    -- 발주번호
-,lib_id         varchar2(30)     not null    -- 사서번호
-,lib_passwd     varchar2(30)     not null    -- 서명
-,lib_name       Nvarchar2(10)    not null    -- 저자
-,lib_tel        varchar2(20)     not null    -- 수량
-,lib_email      varchar2(50)                    -- 출판사
-,lib_birth      date                not null    -- 발주일자
+(lib_seq        number           not null    -- 사서번호
+,lib_id         varchar2(30)     not null    -- 아이디
+,lib_passwd     varchar2(30)     not null    -- 비밀번호
+,lib_name       Nvarchar2(10)    not null    -- 이름
+,lib_tel        varchar2(20)     not null    -- 연락처
+,lib_email      varchar2(50)                 -- 이메일
+,lib_birth      date             not null    -- 생년월일
 ,constraint PK_tbl_librarian_lib_seq primary key(lib_seq)
 ,constraint UQ_tbl_librarian_lib_id unique(lib_id)
 );
@@ -32,7 +32,7 @@ create table tbl_order
 ,lib_seq      number              not null    -- 사서번호
 ,bookname     Nvarchar2(50)       not null    -- 서명
 ,author       Nvarchar2(30)       not null    -- 저자
-,count        number              default 1    -- 수량
+,count        number              default 1   -- 수량
 ,publisher    Nvarchar2(20)       not null    -- 출판사
 ,order_date   date                default sysdate    -- 발주일자
 ,constraint PK_tbl_order_orderno primary key(orderno)
@@ -42,11 +42,11 @@ create table tbl_order
 
 -- 대여 테이블 생성
 create table tbl_loan
-(loan_no            number              not null    -- 대여번호
-,lib_seq            number              not null    -- 사서번호
-,user_seq           Nvarchar2(50)       not null    -- 회원번호
-,loan_date          Nvarchar2(30)       not null    -- 대여일자
-,Return_Due_Date    number              not null    -- 반납기한일
+(loan_no            number              not null           -- 대여번호
+,lib_seq            number              not null           -- 사서번호
+,user_seq           number              not null           -- 회원번호
+,loan_date          date                default sysdate    -- 대여일자
+,Return_Due_Date    date                not null           -- 반납기한일
 ,constraint PK_tbl_loan_loan_no primary key(loan_no)
 ,constraint FK_tbl_loan_lib_seq foreign key(lib_seq) references TBL_LIBRARIAN(lib_seq)
 );
@@ -68,7 +68,7 @@ create table TBL_LOAN_BOOK
 (BOOK_ID            number             not null    -- 도서ID
 ,ISBN               number             not null    -- ISBN
 ,LOAN_STATUS        number(1)          not null    -- 대출여부
-,BOOK_STATUS        VARCHAR2(10)       not null    -- 상태
+,BOOK_STATUS        NVARCHAR2(10)      not null    -- 상태
 ,constraint PK_TBL_LOAN_BOOK_BOOK_ID primary key(BOOK_ID)
 ,constraint FK_TBL_LOAN_BOOK_ISBN foreign key(ISBN) references TBL_BOOK(ISBN)
 ,constraint CK_TBL_LOAN_BOOK_LOAN_STATUS CHECK(LOAN_STATUS IN (0,1))
@@ -76,7 +76,7 @@ create table TBL_LOAN_BOOK
 
 -- 도서 테이블 생성
 create table TBL_BOOK
-(ISBM            number              not null    -- ISBM
+(ISBN            number              not null    -- ISBN
 ,FK_CATEGORY_ID  NVARCHAR2(10)       not null    -- 카테고리아이디
 ,BOOK_NAME       NVARCHAR2(50)       not null    -- 도서명
 ,PUB_YEAR        DATE                not null    -- 발행년도
@@ -84,7 +84,7 @@ create table TBL_BOOK
 ,RENTAL_FEE      NUMBER              not null    -- 대여료
 ,AUTHOR          NVARCHAR2(30)       not null    -- 저자명
 ,PUBLISHER       NVARCHAR2(10)       not null    -- 출판사
-,constraint PK_TBL_BOOK_ISBM primary key(ISBM)
+,constraint PK_TBL_BOOK_ISBN primary key(ISBN)
 ,constraint FK_TBL_BOOK_FK_CATEGORY_ID foreign key(FK_CATEGORY_ID) references TBL_CATEGORY(CATEGORY_ID)
 );
 
@@ -105,9 +105,9 @@ create table TBL_USER
 ,USER_EMAIL     VARCHAR2(50)    not null    -- 이메일
 ,USER_BIRTH     DATE            not null    -- 생년월일
 ,LOAN_STOP      NUMBER(1)       not null    -- 대출정지여부
-,POINT          NUMBER          not null    -- 포인트
-,OVERDUE_FEE    NUMBER          not null    -- 연체료
-,constraint PK_TBL_BOOK_ISBM primary key(ISBM)
+,POINT          NUMBER          default 0   -- 포인트
+,OVERDUE_FEE    NUMBER          default 0   -- 연체료
+,constraint PK_TBL_BOOK_ISBN primary key(ISBN)
 ,constraint FK_TBL_BOOK_FK_CATEGORY_ID foreign key(FK_CATEGORY_ID) references TBL_CATEGORY(CATEGORY_ID)
 ,constraint UQ_TBL_USER_USER_ID unique(USER_ID)
 ,constraint CK_TBL_USER_LOAN_STOP CHECK (LOAN_STOP IN (0,1))
@@ -129,7 +129,7 @@ create table TBL_WISH_BOOK
 ,WISH_BOOK_NAME        NVARCHAR2(50)   not null    -- 도서명
 ,WISH_BOOK_AUTHOR      NVARCHAR2(30)   not null    -- 저자명
 ,WISH_BOOK_PUBLISHER   NVARCHAR2(10)   not null    -- 출판사
-,REQUEST_DATE          DATE            not null    -- 신청일
+,REQUEST_DATE          DATE            default sysdate    -- 신청일
 ,constraint PK_TBL_WISH_BOOK_WISH_BOOK_NO primary key(WISH_BOOK_NO)
 ,constraint FK_TBL_WISH_BOOK_USER_SEQ foreign key(USER_SEQ) references TBL_USER(USER_SEQ) on delete cascade
 );
@@ -149,7 +149,7 @@ create table TBL_RESV_DETAIL
 ,FK_RESV_ID        number         not null    -- 예약번호
 ,BOOK_ID           number         not null    -- 도서ID
 ,constraint PK_TBL_RESV_DETAIL_RESV_DETAIL_ID primary key(RESV_DETAIL_ID)
-,constraint FK_TBL_RESV_DETAIL_FK_RESV_ID foreign key(FK_RESV_ID) references TBL_RESERVATION(RESV_ID)
+,constraint FK_TBL_RESV_DETAIL_FK_RESV_ID foreign key(FK_RESV_ID) references TBL_RESERVATION(RESV_ID) on delete cascade
 ,constraint FK_TBL_RESV_DETAIL_BOOK_ID foreign key(BOOK_ID) references TBL_LOAN_BOOK(BOOK_ID)
 );
 
@@ -160,6 +160,6 @@ create table TBL_FAVORITE
 ,constraint PK_TBL_FAVORITE_FK_USERSEQ primary key(FK_USERSEQ)
 ,constraint PK_TBL_FAVORITE_ISBN primary key(ISBN)
 ,constraint FK_TBL_FAVORITE_FK_USERSEQ foreign key(FK_USERSEQ) references TBL_USER(USER_SEQ) on delete cascade
-,constraint FK_TBL_FAVORITE_ISBN foreign key(ISBN) references TBL_BOOK(ISBM)
+,constraint FK_TBL_FAVORITE_ISBN foreign key(ISBN) references TBL_BOOK(ISBN)
 );
 
