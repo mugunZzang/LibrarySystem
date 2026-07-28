@@ -1,5 +1,5 @@
 package user.model;
 
-public class UserDAO {
+public interface UserDAO {
 
 }
