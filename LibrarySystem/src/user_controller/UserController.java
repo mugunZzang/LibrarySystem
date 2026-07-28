@@ -28,8 +28,8 @@ public class UserController {
 		do {
 			// 로그인 실패시
 			if(isLoginSuccess == false) {
-				System.out.println("\n--------------- 도서관 시스템  ---------------\n"
-				         + "1.    2.    3. 로그인   4. 회원가입   \n");
+				System.out.println("\n--------------- 로그인전 ---------------\n"
+				         + "1.베스트셀러    2.도서 검색    3. 로그인   4. 회원가입   \n");
 		
 				System.out.print("▷ 메뉴번호 선택 : ");
 				String menuNo = sc.nextLine();
@@ -37,10 +37,10 @@ public class UserController {
 				switch (menuNo) {
 				
 					case "1":
-						
+						bestSeller();
 						break;
 					case "2":
-						
+						searchBook();
 						break;
 					case "3":
 						
@@ -201,6 +201,48 @@ public class UserController {
 		String menuNo = sc.nextLine();
 		
 	}
+	
+	// === 베스트 셀러 조회 메서드 === //
+    
+    public static void bestSeller() {
+    	
+    	BookDAO dao =new BookDAO_imple();
+    	List<BookDTO> list = dao.bestSeller();
+    	
+    	System.out.println("=".repeat(30));
+    	System.out.println("\n>>>베스트셀러<<<");
+    	System.out.println("=".repeat(30));
+    	System.out.println("순위\t도서명\t저자\t출판사\t출판일");
+    	System.out.println("-".repeat(30));
+    	
+    	int rank = 1;
+    	
+    	for(BookDTO dto : list) {
+    		
+    		System.out.println(rank++ + "\t"
+    				           +dto.getBook_name()+"\t"
+    				           +dto.getAuthor()+"\t"
+    				           +dto.getPub_year()+"\t"
+    				           +dto.getPublisher() 
+    				           );
+    	}
+    	
+    	System.out.println( );
+    	System.out.println(0.ㅇ );
+    	
+    }//end of public static void bestSeller 
+
+    
+    
+    //=== 도서 검색하는 메서드 ===//
+    
+    public static void searchBook() {
+    	
+    	
+    	
+    	
+
+    }
 
 	
 	
