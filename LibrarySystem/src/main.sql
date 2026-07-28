@@ -131,7 +131,7 @@ create table TBL_WISH_BOOK
 ,WISH_BOOK_PUBLISHER   NVARCHAR2(10)   not null    -- 출판사
 ,REQUEST_DATE          DATE            not null    -- 신청일
 ,constraint PK_TBL_WISH_BOOK_WISH_BOOK_NO primary key(WISH_BOOK_NO)
-,constraint FK_TBL_WISH_BOOK_USER_SEQ foreign key(USER_SEQ) references TBL_USER(USER_SEQ)
+,constraint FK_TBL_WISH_BOOK_USER_SEQ foreign key(USER_SEQ) references TBL_USER(USER_SEQ) on delete cascade
 );
 
 -- 예약 테이블 생성
@@ -140,8 +140,7 @@ create table TBL_RESERVATION
 ,FK_USERSEQ       number              not null           -- 회원번호
 ,RESV_DATE        DATE                default sysdate    -- 예약등록일
 ,constraint PK_TBL_RESERVATION_RESV_ID primary key(RESV_ID)
-,constraint FK_TBL_RESERVATION_FK_USERSEQ foreign key(FK_USERSEQ) references tbl_loan(LOAN_NO)
-,constraint FK_tbl_loan_detail_BOOK_ID foreign key(BOOK_ID) references TBL_USER(USERSEQ)
+,constraint FK_TBL_RESERVATION_FK_USERSEQ foreign key(FK_USERSEQ) references TBL_USER(USERSEQ) on delete cascade
 );
 
 -- 예약상세 테이블 생성
@@ -160,7 +159,7 @@ create table TBL_FAVORITE
 ,ISBN         number      not null    -- ISBN
 ,constraint PK_TBL_FAVORITE_FK_USERSEQ primary key(FK_USERSEQ)
 ,constraint PK_TBL_FAVORITE_ISBN primary key(ISBN)
-,constraint FK_TBL_FAVORITE_FK_USERSEQ foreign key(FK_USERSEQ) references TBL_USER(USER_SEQ)
+,constraint FK_TBL_FAVORITE_FK_USERSEQ foreign key(FK_USERSEQ) references TBL_USER(USER_SEQ) on delete cascade
 ,constraint FK_TBL_FAVORITE_ISBN foreign key(ISBN) references TBL_BOOK(ISBM)
 );
 
