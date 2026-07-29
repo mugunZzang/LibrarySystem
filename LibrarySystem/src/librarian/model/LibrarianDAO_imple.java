@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import dbconnection.ProjectDBConnection;
 import librarian.domain.LibrarianDTO;
@@ -121,4 +122,41 @@ public class LibrarianDAO_imple implements LibrarianDAO {
    } // end of public boolean checkIdExists(String lib_id)---------
    
 
+// 사서로그인처리 메서드
+   @Override
+   public LibrarianDTO libLogin(Map<String, String> paraMap) {
+          
+        LibrarianDTO loginLibDto = null;
+      
+      
+      try {
+         
+         String sql = " select * "
+                  + " from tbl_lib_login "
+                  + " where lib_id = ? and lib_passwd = ? ";
+         
+         pstmt = conn.prepareStatement(sql);
+         pstmt.setString(1, paraMap.get("userid"));
+         pstmt.setString(2, paraMap.get("passwd"));
+         
+         rs = pstmt.executeQuery(); // sql문 실행
+         
+         if(rs.next()) {
+            loginLibDto = new LibrarianDTO();
+            
+            loginLibDto.setId(rs.getString("lib_id"));
+            loginLibDto.setLib_seq(rs.getInt("lib_seq"));
+            loginLibDto.setPw(rs.getString("lib_passwd"));
+            loginLibDto.setName(rs.getString("lib_name"));
+         }
+      }catch(SQLException e) {
+         e.printStackTrace();
+
+      }finally {
+         close();
+      }
+      
+      return loginLibDto;
+   }// public Librarian_DTO libLogin(Map<String, String> paraMap)
+   
 }
