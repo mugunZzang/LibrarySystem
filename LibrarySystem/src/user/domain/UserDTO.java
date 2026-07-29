@@ -8,7 +8,7 @@ public class UserDTO extends CommonMember {
 	// field
 	
 	private int user_seq;                 // 회원번호
-	private int loan_stop;                // 대출정지여부
+	private int loan_stop;                // 대출정지여부 0: 대출가능회원 1: 대출불가능회원
 	private int point;                    // 포인트  default 0
 	private int overdue_fee;              // 연체료  default 0
  	
@@ -48,4 +48,16 @@ public class UserDTO extends CommonMember {
 		this.overdue_fee = overdue_fee;
 	}
 	
+	
+	@Override
+	public String toString() {
+		
+		return "=== " + super.getName() + "님의 정보 ===" + "\n"
+			 + "◇ 성명 : " + super.getName() + "\n"
+			 + "◇ 연락처 : " + super.getTel() + "\n"
+			 + "◇ 이메일 : " + super.getEmail() + "\n"
+			 + "◇ 포인트 : " + point + "\n"
+			 + "◇ 가입일자 : " + super.getRegisterday()
+			 ;
+	}
 }
