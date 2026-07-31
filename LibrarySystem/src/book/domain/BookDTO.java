@@ -13,7 +13,7 @@ public class BookDTO {
    private String publisher;
    private String loanStatus;  // 대출상세
    private String resvStatus;  // 예약상세
-	   
+   private int loan_count; // 대여 횟수 
    
    //method
    public int getIsbn() {
@@ -77,6 +77,12 @@ public class BookDTO {
   }
   public void setResvStatus(String resvStatus) {
 	  this.resvStatus = resvStatus;
+  }
+  public int getLoan_count() {
+	return loan_count;
+  }
+  public void setLoan_count(int loan_count) {
+	this.loan_count = loan_count;
   }
    
  }

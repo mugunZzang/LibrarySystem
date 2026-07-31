@@ -2,7 +2,7 @@ package librarian.domain;
 
 import common.CommonMember;
 
-public class Librarian_DTO extends CommonMember{
+public class LibrarianDTO extends CommonMember{
 
 	// field
 	 private int lib_seq;         // 사서번호

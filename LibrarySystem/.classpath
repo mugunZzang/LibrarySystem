@@ -6,6 +6,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/git/PublicGitTest/PublicGitTest/ojdbc_lib/ojdbc11.jar"/>
+	<classpathentry kind="lib" path="C:/git/LibrarySystem/LibrarySystem/LibrarySystem/ojdbc_lib/ojdbc11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

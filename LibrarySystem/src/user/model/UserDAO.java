@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Map;
 
 import book.domain.BookDTO;
+import book.domain.WishBookDTO;
 import user.domain.UserDTO;
 
 
@@ -60,6 +61,37 @@ public interface UserDAO {
 
 		// 회원번호로 회원id를 찾는 메소드
 		String getUserIdBySeq(String userSeq);
+		
+		//---------------------------------------------------
+
+
+
+			
+	       //****희망도서 신청 메서드****//
+			int requestWishBook(int user_seq, WishBookDTO dto);
+
+			// 연체료납부 메소드
+			int payOverdueFee(Map<String, Object> map);
+			
+			//포인트충전
+			int addPoint(UserDTO loginUserDto);
+		
+		    // tbl_user 테이블에서 정보 가져오기
+		    UserDTO myInfo(String id);
+		   
+		    
+		   // 내 정보를 수정(UPDATE)해주는 메서드
+		    int updateMyinfo(Map<String, String> paraMap);
+
+			
+			
+	     
+
+			// 특정 회원의 포인트 가져오기
+			int getUserPoint(int userSeq);
+
+			// 대출처리 시 대여료 차감시키기
+			int minusToPoint(int bookRentFee, int userSeq);
 	
 	
 	
