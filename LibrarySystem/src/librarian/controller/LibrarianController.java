@@ -72,7 +72,7 @@ public class LibrarianController {
 		librarianDto = librarian_dto;
 		
 		do {
-			System.out.println("---------------------------------------------------");
+			System.out.println("\n>>> ------ 사서 메뉴 ["+ librarian_dto.getName() +"님 로그인중..] ------ <<<");
 			System.out.println("1.대출/반납   2.회원관리  3.도서관리  4.마이페이지  5.로그아웃");
 			System.out.println("---------------------------------------------------");
 			

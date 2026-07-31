@@ -44,10 +44,10 @@ public class UserController {
 		do {
 			// 로그인 실패시
 			if(isLoginSuccess == false) {
-				System.out.println("\n--------------- 로그인전 ---------------\n"
-				         + "1.베스트셀러    2.도서 검색    3. 로그인   4. 회원가입  5.프로그램 종료 \n");
+				System.out.println("\n----------------------- 도서관리 프로그램 ------------------------\n"									
+									+ "1.베스트셀러   2.도서 검색   3.로그인   4.회원가입   5.프로그램 종료 \n");
 		
-				System.out.print("▷ 메뉴번호 선택 : ");
+				System.out.print("▷ 메뉴번호를 선택하세요 : ");
 				String menuNo = sc.nextLine();
 				
 				switch (menuNo) {
@@ -59,8 +59,8 @@ public class UserController {
 						searchBook(sc,0); // 도서 검색
 						break;
 					case "3":
-						
-							System.out.println("1. 회원로그인     2. 사서로그인");
+							System.out.println("\n------- 로그인 할 계정 유형 선택 -------");
+							System.out.println("1.회원로그인     2.사서로그인");
 							
 							System.out.print("▷ 메뉴번호 선택 : ");
 							String loginNo = sc.nextLine();
@@ -82,13 +82,13 @@ public class UserController {
 									break;
 						
 								default:
-									System.out.println("1이나 2만 입력해주세요.!!");
+									System.out.println("[경고] 1이나 2만 입력해주세요!!");
 									break;
 								}
 						break;
 					case "4":
 			            do {
-			               System.out.print("1. 회원회원가입   2. 사서회원가입");
+			               System.out.print("1.일반회원가입   2.사서회원가입");
 			               String choice = sc.nextLine();
 			               if(choice.equals("1")) {
 			                  // 회원으로 회원가입
@@ -132,8 +132,8 @@ public class UserController {
 					// loginUserDto.getUserid() 로 tbl_user 테이블에서 정보 가져오기
 				    loginUserDto = userDao.myInfo(loginUserDto.getId());
 				     
-					System.out.println("\n>>> ----- 시작메뉴 ["+ loginUserDto.getName() +"님 로그인중..] ----- <<<\n"
-					     +"1.베스트셀러 2.도서 검색 3.희망도서 신청 4.연체료 납부  5.관심도서   6.마이페이지 7.로그아웃\n");
+					System.out.println("\n>>> ---------- 일반회원 메뉴 ["+ loginUserDto.getName() +"님 로그인중..] ---------- <<<\n"
+									+"1.베스트셀러  2.도서 검색  3.희망도서 신청  4.연체료 납부  5.관심도서  6.마이페이지  7.로그아웃\n");
 			
 					System.out.print("▷ 메뉴번호 선택 : ");
 					String menuNo = sc.nextLine();
@@ -158,8 +158,8 @@ public class UserController {
 	                    favBookList = bookDao.bringBookList(favBookList, loginUserDto);
 	                     
 	                    do {
-		                    System.out.println("1. 관심도서 조회   2. 관심도서 신청   3. 관심도서 삭제   4.이전");
-		                    System.out.print("몇번 선택 하시겠습니까? : ");
+		                    System.out.println("1.관심도서 조회  2.관심도서 신청  3.관심도서 삭제  4.이전");
+		                    System.out.print("▷ 메뉴번호 선택 : ");
 		                    favNo = sc.nextLine();
 		                    
 		                     
@@ -446,8 +446,8 @@ public class UserController {
 	     
 	     
 	      System.out.println("\n>>> ----- 마이페이지 ["+ loginUserDto.getName() +"님 로그인중..] ----- <<<\n"
-	              +"1.내 정보 조회 2.내 정보 변경 3.도서 예약 정보 확인 4.대출 조회 5.반납 연기 6.반납 이력 "
-	              + " 7.포인트 충전  8.포인트 조회  9.뒤로가기 \n");
+	              +"1.내 정보 조회  2.내 정보 변경  3.도서 예약 정보 확인  4.대출 조회  5.반납 연기  6.반납 이력\n"
+	              +"7.포인트 충전  8.포인트 조회  9.뒤로가기 \n");
 	      
 	      
 	      do {
@@ -506,7 +506,7 @@ public class UserController {
       
       do {
          try {
-            System.out.print("얼마 충전할래?");
+            System.out.print("얼마를 충전하시겠습니까?");
             
             int addPoint = sc.nextInt();
             
@@ -518,7 +518,7 @@ public class UserController {
                System.out.println("포인트가 충전되었습니다.");
             }
             else {
-               System.err.println("포인트 충전에 실패했습니다 ㅠㅜ");
+               System.err.println("포인트 충전에 실패했습니다. ㅠㅠ");
             }// end of if(n == 1)
             break;
          }catch(InputMismatchException e) {
@@ -530,10 +530,10 @@ public class UserController {
 
 
 
-	   // **** 회원 회원가입을 해주는 메서드 **** //
+	   // **** 일반 회원가입을 해주는 메서드 **** //
 	   private void userRegister(Scanner sc) {
 	      
-	      System.out.println("\n >>> ---- 회원 회원가입 ---- <<<");
+	      System.out.println("\n >>> ---- 일반 회원가입 ---- <<<");
 
 	      // 정보를 입력받기 위한 DTO 1 ROW
 	      UserDTO userDto = new UserDTO();
@@ -541,7 +541,7 @@ public class UserController {
 	      // 회원은 사용가능한 아이디값을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 아이디 입력
-	         System.out.print("1. 아이디 : ");
+	         System.out.print("1.아이디 : ");
 	         String user_id = sc.nextLine();
 	         
 	         // 사용자가 입력한 값이 존재하는 아이디인지 확인
@@ -563,7 +563,7 @@ public class UserController {
 	      // 회원은 사용가능한 비밀번호값을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 비밀번호 입력
-	         System.out.print("2. 비밀번호 : ");
+	         System.out.print("2.비밀번호 : ");
 	         String user_pw = sc.nextLine();
 	         
 	         // 사용자가 입력한 비밀번호가 우리가 만든 비밀번호 규칙과 일치하는지 봐야한다.
@@ -576,7 +576,7 @@ public class UserController {
 	      // 회원은 사용가능한 이름을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 이름 입력
-	         System.out.print("3. 회원명 : ");
+	         System.out.print("3.회원명 : ");
 	         String user_name = sc.nextLine();
 	         
 	         // 사용자가 입력한 이름이 우리가 만든 이름 규칙과 일치하는지 봐야한다.
@@ -589,7 +589,7 @@ public class UserController {
 	      // 회원은 사용가능한 연락처를 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 연락처 입력
-	         System.out.print("4. 연락처(휴대폰) : ");
+	         System.out.print("4.연락처(휴대폰) : ");
 	         String user_tel = sc.nextLine();
 	         
 	         // 사용자가 입력한 연락처가 우리가 만든 연락처 규칙과 일치하는지 봐야한다.
@@ -601,7 +601,7 @@ public class UserController {
 	      // 회원은 사용가능한 이메일을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 이메일 입력
-	         System.out.print("5. 이메일 : ");
+	         System.out.print("5.이메일 : ");
 	         String user_email = sc.nextLine();
 	         
 	         // 사용자가 입력한 이메일이 우리가 만든 이메일 규칙과 일치하는지 봐야한다.
@@ -613,7 +613,7 @@ public class UserController {
 	      int n = userDao.userRegister(userDto);
 	      
 	      if(n == 1) {
-	         System.out.println("회원 회원가입에 성공하셨습니다.");
+	         System.out.println("회원가입에 성공하셨습니다.");
 	      } else {
 	         System.out.println("회원가입에 실패하셨습니다.");
 	      }
@@ -633,7 +633,7 @@ public class UserController {
 	      // 사서는 사용가능한 아이디값을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 아이디 입력
-	         System.out.print("1. 아이디 : ");
+	         System.out.print("1.아이디 : ");
 	         String lib_id = sc.nextLine();
 	         
 	         // 사용자가 입력한 값이 존재하는 아이디인지 확인
@@ -655,7 +655,7 @@ public class UserController {
 	      // 사서는 사용가능한 비밀번호값을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 비밀번호 입력
-	         System.out.print("2. 비밀번호 : ");
+	         System.out.print("2.비밀번호 : ");
 	         String lib_pw = sc.nextLine();
 	         
 	         // 사용자가 입력한 비밀번호가 우리가 만든 비밀번호 규칙과 일치하는지 봐야한다.
@@ -668,7 +668,7 @@ public class UserController {
 	      // 사서는 사용가능한 이름을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 이름 입력
-	         System.out.print("3. 사서명 : ");
+	         System.out.print("3.사서명 : ");
 	         String lib_name = sc.nextLine();
 	         
 	         // 사용자가 입력한 이름이 우리가 만든 이름 규칙과 일치하는지 봐야한다.
@@ -681,7 +681,7 @@ public class UserController {
 	      // 사서는 사용가능한 연락처를 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 연락처 입력
-	         System.out.print("4. 연락처(휴대폰) : ");
+	         System.out.print("4.연락처(휴대폰) : ");
 	         String lib_tel = sc.nextLine();
 	         
 	         // 사용자가 입력한 연락처가 우리가 만든 연락처 규칙과 일치하는지 봐야한다.
@@ -693,7 +693,7 @@ public class UserController {
 	      // 사서는 사용가능한 이메일을 입력할 때까지 반복해야 한다.
 	      do {
 	         // 사용자 이메일 입력
-	         System.out.print("5. 이메일 : ");
+	         System.out.print("5.이메일 : ");
 	         String lib_email = sc.nextLine();
 	         
 	         // 사용자가 입력한 이메일이 우리가 만든 이메일 규칙과 일치하는지 봐야한다.
@@ -705,7 +705,7 @@ public class UserController {
 	      int n = libDao.libRegister(libDto);
 	      
 	      if(n == 1) {
-	         System.out.println("회원 회원가입에 성공하셨습니다.");
+	         System.out.println("사서 회원가입에 성공하셨습니다.");
 	      } else {
 	         System.out.println("회원가입에 실패하셨습니다.");
 	      }
@@ -742,11 +742,11 @@ public class UserController {
     	while(true) {
     	List<BookDTO> list = dao.bestSeller();
     	
-    	System.out.println("=".repeat(30)+"\n");
-    	System.out.println(">>>베스트셀러<<<\n");
-    	System.out.println("=".repeat(30)+"\n");
-    	System.out.println("순위\t도서명\t저자\t출판사\t출판일\t대여횟수\n");
-    	System.out.println("-".repeat(30)+"\n");
+    	System.out.println("=".repeat(40));
+    	System.out.println(">>> 베스트셀러 <<<");
+    	System.out.println("=".repeat(40));
+    	System.out.println("순위\t도서명\t저자\t출판사\t출판일\t대여횟수");
+    	System.out.println("-".repeat(40)+"\n");
     	
     	int rank = 1;
     	
@@ -811,24 +811,24 @@ public class UserController {
 	    	switch(menu) {
 	    	 case "1":
 	    		   type="book_name";
-	    	       System.out.println(" 검색어 입력: ");    // 도서명 검색
+	    	       System.out.print("▷ 검색어 입력: ");    // 도서명 검색
 	    	       keyword=sc.nextLine();
 	    	        break;
 	
 	    	    case "2":
 	    	    	type="author";
-	    	       System.out.println(" 검색어 입력: ");    // 저자명 검색
+	    	       System.out.print("▷ 검색어 입력: ");    // 저자명 검색
 	    	       keyword=sc.nextLine();
 	    	        break;
 	    	        
 	    	    case "3":
 	    	    	type="publisher";
-	    	    	System.out.println(" 검색어 입력: ");  // 출판사 검색
+	    	    	System.out.print("▷ 검색어 입력: ");  // 출판사 검색
 	    	    	keyword=sc.nextLine();
 	    	    	break;
 	    	    case "4":
 	    	    	type="fk_category_id";
-	    	    	System.out.println(" 검색어 입력: ");  // 카테고리 검색
+	    	    	System.out.print("▷ 검색어 입력: ");  // 카테고리 검색
 	    	    	keyword=sc.nextLine();
 	                break;
 	
@@ -836,7 +836,7 @@ public class UserController {
 	    	        return;  // 이전 메뉴(회원 메뉴)로 돌아감
 	    	        
 	    	     default:
-					System.out.println("메뉴에 있는 번호만 입력해주세요!!");
+					System.out.println("[경고] 메뉴에 있는 번호만 입력해주세요!!");
 					continue;
 	
 	    	} //end of switch---
@@ -884,7 +884,7 @@ public class UserController {
         
         	
         	 
-        System.out.print("메뉴 선택 : ");
+        System.out.print("▷ 메뉴 선택 : ");
 
         menu = sc.nextLine();
 
@@ -1055,7 +1055,7 @@ public class UserController {
 		    	        	System.out.println("희망도서 신청이 취소되었습니다.");
 		    				return;
 		    	        }else {
-		    	        	System.out.println("Y또는N만 입력해주세요."); //Y와N을 입력안했을 경우
+		    	        	System.out.println("[경고] Y또는N만 입력해주세요."); //Y와N을 입력안했을 경우
 		    	        }
 		    	  }
 		    	  break;
@@ -1064,7 +1064,7 @@ public class UserController {
 		    		return; //이전메뉴
 		    		
 		    	 default:
-		             System.out.println("메뉴에 있는 번호만 입력해주세요.");
+		             System.out.println("[경고] 메뉴에 있는 번호만 입력해주세요.");
 		             break;
 		    	}//end of switch---
 		    	
