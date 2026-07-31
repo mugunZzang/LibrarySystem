@@ -5,13 +5,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-
 
 import book.domain.BookDTO;
 import book.domain.LoanBookDTO;
@@ -26,18 +24,18 @@ import book.model.WishBookDAO;
 import book.model.WishBookDAO_imple;
 import dbconnection.ProjectDBConnection;
 import librarian.domain.LibrarianDTO;
+import librarian.model.LibrarianDAO;
+import librarian.model.LibrarianDAO_imple;
 import loan.domain.LoanDAO;
 import loan.domain.LoanDAO_imple;
 import loan.domain.LoanDetailDAO;
 import loan.domain.LoanDetailDAO_imple;
-
 import reservation.model.ReservationDAO;
 import reservation.model.ReservationDAO_imple;
 import reservation.model.ResvDetailDAO;
 import reservation.model.ResvDetailDAO_imple;
 import user.domain.UserDTO;
 import user.model.UserDAO;
-
 import user.model.UserDAO_imple;
 
 
@@ -58,6 +56,7 @@ public class LibrarianController {
 	
 	CategoryDAO categoryDao = new CategoryDAO_imple();				// 카테고리
 	BookDAO bookDao = new BookDAO_imple();							// 도서
+	LibrarianDAO librarianDao = new LibrarianDAO_imple();           // 사서
 	
 	Connection conn = ProjectDBConnection.getConn();
 	// controller
@@ -90,9 +89,10 @@ public class LibrarianController {
 			case "3":	// 도서관리
 				bookManagement(sc);
 				break;
-			case "4":	// 마이페이지
-				// myPage(librarian_dto, sc); 만들어야함
-				break;
+	         case "4":   // 마이페이지
+	             librarianMyPage(librarian_dto, sc);
+	            break;
+
 			case "5":	// 로그아웃
 				return false;
 			default:
@@ -446,11 +446,16 @@ public class LibrarianController {
 		int isbn = 0;
 		// 2. 변경할 도서의 ISBN을 입력받기.
 		do {
-			System.out.print("▶ 수정할 도서의 ISBN을 입력 : ");
+			System.out.print("▶ 수정할 도서의 ISBN을 입력(또는 0 입력시 취소) : ");
 			String inputIsbn = sc.nextLine();
+			
+		
 			
 			try {
 				isbn = Integer.parseInt(inputIsbn);
+				if(isbn == 0) {
+					return;
+				}
 				
 				if (bookDao.isExistBook(isbn))
 					break;
@@ -744,10 +749,13 @@ public class LibrarianController {
 		
 		// 삭제할 도서의 ISBN 입력받기
 		do {
-			System.out.print("▶ 삭제할 도서의 ISBN을 입력 : ");
+			System.out.print("▶ 삭제할 도서의 ISBN을 입력(또는 0 입력시 취소) : ");
 			int isbn = 0;
 			try {
 				isbn = Integer.parseInt(sc.nextLine());
+				if (isbn == 0) {
+					return;
+				}
 			} catch (NumberFormatException e) {
 				System.out.println("[경고] ISBN은 정수로 입력하십시오.\n");
 				continue;
@@ -1360,8 +1368,11 @@ public class LibrarianController {
 				// 반납의 경우 사용자가 원하는 만큼 받도록 한다.
 				
 				// 반납할 대여상세번호 입력받기
-				System.out.print("▶ 반납처리할 대여상세번호 입력 : ");
+				System.out.print("▶ 반납처리할 대여상세번호 입력(또는 0 입력시 취소) : ");
 				String no = sc.nextLine();
+				if(no.equals("0")) {
+					return;
+				}
 				
 				String bookId = "";
 				String loanDetailNo = "";
@@ -1947,7 +1958,104 @@ public class LibrarianController {
 
 	
 	
-	
+	   // 마이페이지
+	   private void librarianMyPage(LibrarianDTO librarian_dto, Scanner sc) {
+	      // loginUserDto.getUserid() 로 tbl_user 테이블에서 정보 가져오기
+	      librarian_dto = librarianDao.myInfo(librarian_dto.getLib_seq());
+	      
+	      do {
+	         
+	          System.out.println("\n>>> ----- 마이페이지 ["+ librarian_dto.getName() +"님 로그인중..] ----- <<<\n"
+	                    +" 1.내 정보 조회 2.내 정보 변경 3. 뒤로가기 \n");
+	         
+	         System.out.print("▷ 메뉴번호 선택 : ");
+	         String menuNo = sc.nextLine();
+	         
+	         switch (menuNo) {
+	            case "1":   // 내 정보 조회
+	               System.out.println(librarian_dto.toString());
+	               break;
+	               
+	            case "2":   // 내 정보 변경
+	               updateLibrarianInfo(librarian_dto , sc);
+	               break;
+	               
+	            case "3":   // 뒤로가기
+	               return ;
+	      
+	            default:
+	               System.out.println("존재하지 않는 번호입니다.");
+	               break;
+	         }
+	      } while(true);
+	      
+	      
+	      
+	   } // end of private void librarianMyPage(LibrarianDTO librarian_dto, Scanner sc)----------
+
+
+	   
+	   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	   
+	   // 사서 정보 변경
+	   private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc) {
+	         
+	        System.out.println(librarian_dto.toString());
+	       
+	        System.out.println("== [주의사항] 변경하지 않으려면 그냥 엔터하세요!! ==");
+	       
+	        System.out.print("▷ 비밀번호 : ");
+	        String newPasswd = sc.nextLine();
+	       
+	        System.out.print("▷ 성명 : ");
+	        String newName = sc.nextLine();
+	       
+	        System.out.print("▷ 연락처 : ");
+	        String newMobile = sc.nextLine();
+	       
+	       
+	        // 비밀번호가 그냥 엔터 또는 공백으로만 되어지는 경우
+	        if(newPasswd.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
+	           newPasswd = librarian_dto.getPw();
+	        }
+	        // 성명이 그냥 엔터 또는 공백으로만 되어지는 경우
+	        if(newName.isBlank()) {         // 성명이 그냥 엔터 또는 그냥 공백일 경우
+	           newName = librarian_dto.getName();
+	        }   
+	        // 연락처가 그냥 엔터 또는 공백으로만 되어지는 경우
+	        if(newMobile.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
+	           newMobile = librarian_dto.getTel();
+	        }
+	       
+	        // 이렇게 복수개의 값은 Spring 에서 지원하지 않음
+	        // Java에서는 가능하지만 Spring 을 위해서 Map 으로 변환해서 전달
+	        Map<String, String> paraMap = new HashMap<>();
+
+	        paraMap.put("Lib_seq", String.valueOf(librarian_dto.getLib_seq()));  // valueOf 는 String 을 int 로 형변환 해주는 함수
+	        paraMap.put("newPasswd", newPasswd);
+	        paraMap.put("newName", newName);
+	        paraMap.put("newMobile", newMobile);
+	       
+	        int n = librarianDao.updateLibrarianInfo(paraMap);
+	       
+	        if(n == 1) {
+	           System.out.println("\n>>> 수정 완료 !!! <<< \n");
+	          
+	           System.out.println("===> 수정된 나의 정보 <===");
+
+	           librarian_dto.setPw(newPasswd);
+	           librarian_dto.setName(newName);
+	           librarian_dto.setTel(newMobile);
+	          
+	           System.out.println(librarian_dto);
+	        } else {
+	           System.out.println("변경 실패");
+	        }
+
+	      
+	   } // end of private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc)----------    
+	   
+
 	
 	
 	

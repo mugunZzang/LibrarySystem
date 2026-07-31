@@ -176,7 +176,7 @@ public class UserDAO_imple implements UserDAO {
 			        		+ " b.book_name, "
 			        		+ " b.author, "
 			        		+ " b.publisher, "
-			        		+ " b.pub_year, "
+			        		+ " to_char(b.pub_year,'yyyy-mm-dd') AS pub_year, "
 			        		+ " COUNT(*) AS loan_count "
 			        		+ " FROM tbl_loan_detail a "
 			        		+ " JOIN tbl_loan_book c "

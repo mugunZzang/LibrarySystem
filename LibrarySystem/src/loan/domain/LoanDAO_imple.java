@@ -186,34 +186,236 @@ public class LoanDAO_imple implements LoanDAO {
 
 
 
-    // 반납 3일 추가 업데이트
-	@Override
-	public int returnAdd(String menuNo) {
-		 int result = 0;
-	       
-	       try {
-	          String sql = " UPDATE tbl_loan "
-	          			 + " SET return_due_date = return_due_date + 3 "
-	          		     + " WHERE loan_no = (select l.loan_no "
-	          		     + "                from tbl_loan l join tbl_loan_detail ld "
-	          		     + "                on l.loan_no = ld.loan_no "
-	          		     + "                WHERE loan_detail_no = to_number(?)) ";
-	          
-	          pstmt = conn.prepareStatement(sql);
-	          pstmt.setString(1, menuNo);
-	          
-	          
-	          result = pstmt.executeUpdate(); // sql문 실행 
-	          
-	       } catch (SQLException e) {
-	             e.printStackTrace();
-	             
-	       } finally {
-	          close();
-	       }
-	       
-	       return result;
-	}
+	// 반납 3일 추가 1권일때
+    @Override
+    public int returnAdd(String menuNo) {
+       
+      int result = 0;
+        
+       try { 
+          
+       String sql = " UPDATE tbl_loan "
+                + " SET return_due_date = return_due_date + 3 "
+                + " WHERE loan_no = (select l.loan_no "
+                + "                from tbl_loan l join tbl_loan_detail ld "
+                + "                on l.loan_no = ld.loan_no "
+                + "                WHERE loan_detail_no = to_number(?) and "
+                + "             return = 0) ";
+          
+          pstmt = conn.prepareStatement(sql);
+          pstmt.setString(1, menuNo);
+          
+          
+          result = pstmt.executeUpdate(); // sql문 실행 
+          
+         
+      } catch (SQLException e) {
+         e.printStackTrace();
+         
+      }
+      
+      return result;
+    }// end of public int returnAdd(String menuNo)
+
+
+ // 반납 3일 추가 2권일때
+    @Override
+    public int returnAdd2(String menuNo) {
+       
+       int result = 0;
+         
+        try {
+          // 1. 자동 커밋 해제 (트랜잭션 시작) 
+          conn.setAutoCommit(false);
+          
+           String sql = " INSERT INTO tbl_loan (loan_no, lib_seq, user_seq, loan_date, return_due_date) "
+                     +" SELECT loan_no.NEXTVAL, lib_seq, user_seq, loan_date, return_due_date "
+                     +" FROM tbl_loan "
+                     +" WHERE loan_no = ( SELECT l.loan_no "
+                     +"                   FROM tbl_loan l JOIN tbl_loan_detail ld "
+                     +"                   ON l.loan_no = ld.loan_no "
+                     +"                   WHERE loan_detail_no = to_number(?) AND "
+                     +"                   return = 0) ";
+            
+           pstmt = conn.prepareStatement(sql);
+           pstmt.setString(1, menuNo);
+           
+           
+           int n1 = pstmt.executeUpdate(); // sql문 실행 
+           
+           sql = " UPDATE tbl_loan_detail "
+                 + " SET loan_no = (SELECT MAX(loan_no) "
+                 + "                FROM tbl_loan "
+                 + "                WHERE loan_no = (SELECT l.loan_no "
+                 + "                                 FROM tbl_loan l JOIN tbl_loan_detail ld "
+                 + "                                 ON l.loan_no = ld.loan_no "
+                 + "                                 WHERE loan_detail_no = to_number(?)) "
+                 + "                                 AND loan_detail_no <> to_number(?) ";
+           
+           pstmt = conn.prepareStatement(sql);
+           pstmt.setString(1, menuNo);
+           pstmt.setString(2, menuNo);
+           
+           
+           int n2 = pstmt.executeUpdate(); // sql문 실행 
+           
+           sql = " UPDATE tbl_loan "
+              + " SET return_due_date = return_due_date + 3 "
+             + " WHERE loan_no = (select l.loan_no "
+             + "                from tbl_loan l join tbl_loan_detail ld "
+             + "                on l.loan_no = ld.loan_no "
+             + "                WHERE loan_detail_no = to_number(?) and "
+             + "               return = 0) ";
+           
+           pstmt = conn.prepareStatement(sql);
+           pstmt.setString(1, menuNo);
+           
+           
+           int n3 = pstmt.executeUpdate(); // sql문 실행 
+           
+        // 두 테이블 모두 정상적으로 수정된 경우에만 Commit
+           if (n1 == 1 && n2 == 1 && n3 == 1) {
+               conn.commit();
+               result = 1;
+           } else {
+               conn.rollback();
+           }
+           
+       } catch(SQLException e) {
+           // 예외 발생 시 트랜잭션 롤백
+           try {
+               if (conn != null) conn.rollback();
+           } catch (SQLException sqle) {
+               sqle.printStackTrace();
+           }
+           e.printStackTrace();
+       } finally {
+           // 수동 커밋 모드 원복 및 자원 해제
+           try {
+               if (conn != null) conn.setAutoCommit(true);
+           } catch (SQLException e) {
+               e.printStackTrace();
+           }
+           close();
+       }
+       
+       return result;
+          
+    }
+    
+       // 반납 3일 추가 3권일때
+       @Override
+       public int returnAdd3(String menuNo) {
+          int result = 0;
+             
+            try {
+              // 1. 자동 커밋 해제 (트랜잭션 시작) 
+              conn.setAutoCommit(false);
+              // tbl_loan 같은행 하나 추가
+               String sql = " INSERT INTO tbl_loan (loan_no, lib_seq, user_seq, loan_date, return_due_date) "
+                         +" SELECT loan_no.NEXTVAL, lib_seq, user_seq, loan_date, return_due_date "
+                         +" FROM tbl_loan "
+                         +" WHERE loan_no = ( SELECT l.loan_no "
+                         +"                   FROM tbl_loan l JOIN tbl_loan_detail ld "
+                         +"                   ON l.loan_no = ld.loan_no "
+                         +"                   WHERE loan_detail_no = to_number(?) AND "
+                         +"                   return = 0) ";
+                
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, menuNo);
+               
+              int n1 = pstmt.executeUpdate(); // sql문 실행 
+               
+               // tbl_loan 같은행 하나 추가
+                      sql = " INSERT INTO tbl_loan (loan_no, lib_seq, user_seq, loan_date, return_due_date) "
+                         +" SELECT loan_no.NEXTVAL, lib_seq, user_seq, loan_date, return_due_date "
+                         +" FROM tbl_loan "
+                         +" WHERE loan_no = ( SELECT l.loan_no "
+                         +"                   FROM tbl_loan l JOIN tbl_loan_detail ld "
+                         +"                   ON l.loan_no = ld.loan_no "
+                         +"                   WHERE loan_detail_no = to_number(?) AND "
+                         +"                   return = 0) ";
+                
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, menuNo);
+               
+               
+               int n2 = pstmt.executeUpdate(); // sql문 실행 
+               
+              // tbl_loan_detail loan_no 다른행 추가된거중 가장큰거로 변경
+               sql = " UPDATE tbl_loan_detail "
+                     + " SET loan_no = (SELECT MAX(loan_no) - 1 "
+                     + "                FROM tbl_loan "
+                     + "                WHERE loan_no = (SELECT l.loan_no "
+                     + "                                 FROM tbl_loan l JOIN tbl_loan_detail ld "
+                     + "                                 ON l.loan_no = ld.loan_no "
+                     + "                                 WHERE loan_detail_no = to_number(?)) "
+                     + "                                 AND loan_detail_no <> to_number(?) ";
+               
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, menuNo);
+               pstmt.setString(2, menuNo);
+               
+              int n3 = pstmt.executeUpdate(); // sql문 실행 
+               
+               // tbl_loan_detail loan_no 다른행 추가된거중 가장큰거로 변경
+               sql = " UPDATE tbl_loan_detail "
+                     + " SET loan_no = (SELECT MAX(loan_no) "
+                     + "                FROM tbl_loan "
+                     + "                WHERE loan_no = (SELECT l.loan_no "
+                     + "                                 FROM tbl_loan l JOIN tbl_loan_detail ld "
+                     + "                                 ON l.loan_no = ld.loan_no "
+                     + "                                 WHERE loan_detail_no = to_number(?)) "
+                     + "                                 AND loan_detail_no <> to_number(?) ";
+               
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, menuNo);
+               
+               int n4 = pstmt.executeUpdate(); // sql문 실행 
+               
+           // tbl_loan 변경 안된거 3일추가
+               sql = " UPDATE tbl_loan "
+                  + " SET return_due_date = return_due_date + 3 "
+                 + " WHERE loan_no = (select l.loan_no "
+                 + "                from tbl_loan l join tbl_loan_detail ld "
+                 + "                on l.loan_no = ld.loan_no "
+                 + "                WHERE loan_detail_no = to_number(?) and "
+                 + "               return = 0) ";
+               
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, menuNo);
+               
+               
+               int n5 = pstmt.executeUpdate(); // sql문 실행 
+               
+            // 두 테이블 모두 정상적으로 수정된 경우에만 Commit
+               if (n1 == 1 && n2 == 1 && n3 == 1 && n4 == 1 && n5 == 1) {
+                   conn.commit();
+                   result = 1;
+               } else {
+                   conn.rollback();
+               }
+               
+           } catch(SQLException e) {
+               // 예외 발생 시 트랜잭션 롤백
+               try {
+                   if (conn != null) conn.rollback();
+               } catch (SQLException sqle) {
+                   sqle.printStackTrace();
+               }
+               e.printStackTrace();
+           } finally {
+               // 수동 커밋 모드 원복 및 자원 해제
+               try {
+                   if (conn != null) conn.setAutoCommit(true);
+               } catch (SQLException e) {
+                   e.printStackTrace();
+               }
+               close();
+           }
+           
+           return result;
+       }
 
 
 
