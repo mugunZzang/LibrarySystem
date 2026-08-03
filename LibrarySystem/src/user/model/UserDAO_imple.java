@@ -262,7 +262,7 @@ public class UserDAO_imple implements UserDAO {
 						memberList = new ArrayList<>();
 					}
 									
-					UserDTO mbrDto = new UserDTO();
+					UserDTO mbrDto = new UserDTO();	//회원 한 명을 저장할 객체
 					
 					mbrDto.setUser_seq(rs.getInt("USER_SEQ"));
 					mbrDto.setId(rs.getString("USER_ID"));
@@ -272,7 +272,7 @@ public class UserDAO_imple implements UserDAO {
 					mbrDto.setRegisterday(rs.getString("USER_REGISTERDAY"));
 					mbrDto.setLoan_stop(rs.getInt("LOAN_STOP"));
 					mbrDto.setOverdue_fee(rs.getInt("OVERDUE_FEE"));
-//					mbrDto.setStatus(rs.getInt("status"));	
+//							mbrDto.setStatus(rs.getInt("status"));	
 					
 					memberList.add(mbrDto);
 					
@@ -347,7 +347,87 @@ public class UserDAO_imple implements UserDAO {
 			return result;			
 		}	
 		
+		// **** 260801 회원을 대출승인 하는 메서드 ****
+		@Override
+		public int loanAllow(String userSeq) {
+			int result = 0;
+			
+			try {
+				String sql = " UPDATE TBL_USER SET LOAN_STOP = 0 "
+						   + " WHERE USER_SEQ = TO_NUMBER(?) ";
+				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, userSeq);
+				
+				result = pstmt.executeUpdate();	//sql문 실행하기
+				
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			
+			return result;			
+		}
 		
+		// 260801 회원번호와 일치하는 회원명을 가져오는 메서드
+		@Override
+		public String getUserName(String userSeq) {
+			
+			String userName ="";
+			
+			String sql = " SELECT USER_NAME "
+					+ " FROM TBL_USER "
+					+ " WHERE USER_SEQ = ? ";
+			
+			try {				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, Integer.parseInt(userSeq));
+				rs = pstmt.executeQuery();
+				
+				if (rs.next()) {
+					userName = rs.getString("USER_NAME");
+				}
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				close();
+			}
+			
+			return userName;
+			
+		}
+
+		// 260801 회원번호와 일치하는 대출권한을 가져오는 메서드
+		@Override
+		public int getloanStop(String userSeq) {
+			
+			int loanApproval = 0;
+			
+			String sql = " SELECT LOAN_STOP "
+					+ " FROM TBL_USER "
+					+ " WHERE USER_SEQ = ? ";
+			
+			try {				
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, Integer.parseInt(userSeq));
+				rs = pstmt.executeQuery();
+				
+				if (rs.next()) {
+					loanApproval = rs.getInt("LOAN_STOP");
+				}
+				
+				} catch (SQLException e) {
+					e.printStackTrace();
+				} finally {
+					close();
+				}
+			
+			return loanApproval;
+		}
 		
 		
 		
@@ -370,11 +450,11 @@ public class UserDAO_imple implements UserDAO {
 				                  + " THEN '대출가능' "
 				                  + " ELSE '대출불가' "
 				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN ( SELECT COUNT (c.book_id)  FROM tbl_resv_detail c " //예약권수 구해서 2보다 작은지 확인
-				                  + " JOIN tbl_loan_book a ON c.book_id=a.book_id  WHERE a.isbn=b.isbn ) <2 "
-				                  + " THEN '예약가능' "
-				                  + " ELSE '예약불가' "
-				                  + " END AS 예약상세 "  //예약상세 조회
+				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
+	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
+	                              + " THEN '예약가능' "
+	                              + " ELSE '예약불가' "
+	                              + " END AS 예약상세 " //예약상세 조회
 				                  + " FROM tbl_book b "
 				                  + " WHERE b.book_name LIKE ?";
 					 }
@@ -386,11 +466,11 @@ public class UserDAO_imple implements UserDAO {
 				                  + " THEN '대출가능' "
 				                  + " ELSE '대출불가' "
 				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN ( SELECT COUNT (c.book_id)  FROM tbl_resv_detail c " //예약권수 구해서 2보다 작은지 확인
-				                  + " JOIN tbl_loan_book a ON c.book_id=a.book_id  WHERE a.isbn=b.isbn ) <2 "
-				                  + " THEN '예약가능' "
-				                  + " ELSE '예약불가' "
-				                  + " END AS 예약상세 "  //예약상세 조회
+				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
+	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
+	                              + " THEN '예약가능' "
+	                              + " ELSE '예약불가' "
+	                              + " END AS 예약상세 " //예약상세 조회
 				                  + " FROM tbl_book b "
 				                  + " WHERE b.author LIKE ?";
 					 }
@@ -401,11 +481,11 @@ public class UserDAO_imple implements UserDAO {
 				                  + " THEN '대출가능' "
 				                  + " ELSE '대출불가' "
 				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN ( SELECT COUNT (c.book_id)  FROM tbl_resv_detail c " //예약권수 구해서 2보다 작은지 확인
-				                  + " JOIN tbl_loan_book a ON c.book_id=a.book_id  WHERE a.isbn=b.isbn ) <2 "
-				                  + " THEN '예약가능' "
-				                  + " ELSE '예약불가' "
-				                  + " END AS 예약상세 "  //예약상세 조회
+				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
+	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
+	                              + " THEN '예약가능' "
+	                              + " ELSE '예약불가' "
+	                              + " END AS 예약상세 " //예약상세 조회
 				                  + " FROM tbl_book b "
 				                  + " WHERE b.publisher LIKE ?";
 					 }
@@ -416,11 +496,11 @@ public class UserDAO_imple implements UserDAO {
 				                  + " THEN '대출가능' "
 				                  + " ELSE '대출불가' "
 				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN ( SELECT COUNT (c.book_id)  FROM tbl_resv_detail c " //예약권수 구해서 2보다 작은지 확인
-				                  + " JOIN tbl_loan_book a ON c.book_id=a.book_id  WHERE a.isbn=b.isbn ) <2 "
-				                  + " THEN '예약가능' "
-				                  + " ELSE '예약불가' "
-				                  + " END AS 예약상세 "  //예약상세 조회
+				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
+	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
+	                              + " THEN '예약가능' "
+	                              + " ELSE '예약불가' "
+	                              + " END AS 예약상세 " //예약상세 조회
 				                  + " FROM tbl_book b "
 				                  + " WHERE b.fk_category_id LIKE ?";
 					 }
@@ -446,8 +526,8 @@ public class UserDAO_imple implements UserDAO {
 				 } catch(SQLException e)  {
 					 e.printStackTrace();
 				 }finally {
-					 
-				 }  close();
+					 close();
+				 }  
 		    
 
 				return list;
@@ -461,7 +541,15 @@ public class UserDAO_imple implements UserDAO {
 			int result=0;
 			
 			try {
-				String sql = "SELECT book_id FROM tbl_loan_book WHERE isbn = ?"; //도서ID 조회하기 sql문
+				String sql = " SELECT a.book_id "
+		                  + " FROM tbl_loan_book a "
+		                  + " WHERE a.isbn = ? "
+		                  + " AND NOT EXISTS ( "
+		                  + " SELECT 1 "
+		                  + " FROM tbl_resv_detail c "
+		                  + " WHERE c.book_id = a.book_id ) "
+		                  + " ORDER BY a.book_id "
+		                  + " FETCH FIRST 1 ROW ONLY "; //에약가능한 도서ID 조회하기 sql문
 
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setInt(1,isbn);
@@ -516,8 +604,8 @@ public class UserDAO_imple implements UserDAO {
 			  catch(SQLException e)  {
 				 e.printStackTrace();
 			 }finally {
-				 
-			 }  close();
+				 close();
+			 }  
 	    
 
 			 return result;
@@ -557,6 +645,8 @@ public class UserDAO_imple implements UserDAO {
 					}
 			  } catch(SQLException e) {
 			        e.printStackTrace();
+			    } finally {
+			    	close();
 			    }
 
 			    return count;
@@ -585,6 +675,8 @@ public class UserDAO_imple implements UserDAO {
 					}
 			  } catch(SQLException e) {
 			        e.printStackTrace();
+			    }finally {
+			    	close();
 			    }
 
 			    return count;
@@ -619,7 +711,9 @@ public class UserDAO_imple implements UserDAO {
 		
 		} catch (SQLException e) {
 		e.printStackTrace();
-		}
+		}finally {
+	    	close();
+	    }
 		
 		
 		
@@ -653,7 +747,7 @@ public class UserDAO_imple implements UserDAO {
 		} catch (SQLException e) {
 		e.printStackTrace();
 		} finally {
-		//ProjectDBConnection.closeConnection();
+		close();
 		}
 		
 		
@@ -686,7 +780,9 @@ public class UserDAO_imple implements UserDAO {
 		} catch (SQLException e) {
 		e.printStackTrace();
 		result = -1;
-		}
+		}finally {
+	    	close();
+	    }
 		
 		return result;
 		}
@@ -721,7 +817,7 @@ public class UserDAO_imple implements UserDAO {
 		} catch (SQLException e) {
 		e.printStackTrace();
 		} finally {
-		//ProjectDBConnection.closeConnection();
+		close();
 		}
 		
 		
@@ -753,6 +849,8 @@ public class UserDAO_imple implements UserDAO {
 				
 			}catch(SQLException e) {
 		        e.printStackTrace();
+		    }finally {
+		    	close();
 		    }
 
 		    return result;
@@ -954,7 +1052,7 @@ public class UserDAO_imple implements UserDAO {
 				close();
 			}
 			
-			return 0;
+			return result;
 		}
 
 

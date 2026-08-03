@@ -18,14 +18,14 @@ public class ReservationDAO_imple implements ReservationDAO {
 	private ResultSet rs;
 	
 	// === 자원반납을 해주는 메서드 === //
-		private void close() {
-			try {
-				if(rs != null)    {rs.close();    rs = null;}
-				if(pstmt != null) {pstmt.close(); pstmt = null;}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}// end of private void close()--------------
+	private void close() {
+		try {
+			if(rs != null)    {rs.close();    rs = null;}
+			if(pstmt != null) {pstmt.close(); pstmt = null;}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}// end of private void close()--------------
 	
 	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ public class ReservationDAO_imple implements ReservationDAO {
 			e.printStackTrace();
 			result = -1;
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return 0;

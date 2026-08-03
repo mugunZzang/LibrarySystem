@@ -17,6 +17,16 @@ public class CategoryDAO_imple implements CategoryDAO {
 	private PreparedStatement pstmt;   
 	private ResultSet rs;
 	
+	// === 자원반납을 해주는 메서드 === //
+	private void close() {
+		try {
+			if(rs != null)    {rs.close();    rs = null;}
+			if(pstmt != null) {pstmt.close(); pstmt = null;}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 카테고리 목록 가져오기
@@ -42,6 +52,8 @@ public class CategoryDAO_imple implements CategoryDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			close();
 		}
 		
 		return resultList;

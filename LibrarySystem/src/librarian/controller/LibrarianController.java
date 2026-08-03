@@ -22,6 +22,7 @@ import book.model.LoanBookDAO;
 import book.model.LoanBookDAO_imple;
 import book.model.WishBookDAO;
 import book.model.WishBookDAO_imple;
+import common.utils;
 import dbconnection.ProjectDBConnection;
 import librarian.domain.LibrarianDTO;
 import librarian.model.LibrarianDAO;
@@ -108,11 +109,11 @@ public class LibrarianController {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 회원관리를 해주는 메서드
-	private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
+private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		do {
 			System.out.println("\n회원관리 페이지입니다. 원하시는 메뉴를 입력하세요.");		
-			System.out.println("1.회원목록조회        2.대출정지       3.나가기");		
+			System.out.println("1.회원목록조회        2.대출권한변경       3.나가기");		
 			System.out.print("▶ 메뉴번호 입력: ");
 			String menuNo2 = sc.nextLine();
 			
@@ -131,18 +132,8 @@ public class LibrarianController {
 					
 					break;
 					
-				case "2":	//대출정지					
-					int n = loanStop(librarian_dto, sc);	//특정 회원을 대출정지 하는 메서드.
-					
-					if(n == 1) {
-						System.out.println(">> 대출정지 성공! <<");
-					}
-					else if(n == 0) {
-						System.out.println(">> 대출정지 취소! <<");
-					}
-					else if(n == -1) {
-						System.out.println(">> 대출정지 실패! <<");
-					}					
+				case "2":	// (260801 함수명 수정)대출정지					
+					loanStop(librarian_dto, sc);	//특정 회원을 대출정지 하는 메서드.					
 					
 					break;
 					
@@ -165,7 +156,7 @@ public class LibrarianController {
 	
 	// **** 모든회원조회를 해주는 메서드 **** //
 	private void showAllMember(String sortChoice) {
-	
+		
 		String[] arrNumber = {"1", "2", "3", "4"};
 		boolean isFind = false;
 		
@@ -191,7 +182,7 @@ public class LibrarianController {
 				sb.append("-".repeat(50) + "\n");
 				
 				mbrList.forEach(mbrDto -> { 
-//							String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
+	//						String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
 					sb.append(mbrDto.getUser_seq() + " " + 
 							mbrDto.getId() + " " +
 							mbrDto.getName() + " " + 
@@ -220,14 +211,11 @@ public class LibrarianController {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//특정 회원을 대출정지 하는 메서드.
-	private int loanStop(LibrarianDTO loginLibDto, Scanner sc) {
+	private void loanStop(LibrarianDTO loginLibDto, Scanner sc) {
 		
-		int result = 0;
+		System.out.println("\n>>> 대출권한변경 <<<");
 		
-		System.out.println("\n>>> 대출정지 <<<");
-		
-		System.out.println("1.사서명: " + loginLibDto.getName());
-		System.out.print("2.대출정지 할 회원번호: " );
+		System.out.print("▷ 대출권한을 수정할 회원번호를 입력하세요: ");
 		String userSeq = sc.nextLine();	//"5"
 										// "12315" -- 존재하지 않는 글번호
 										// "fasdfdafdfdsf"
@@ -236,46 +224,64 @@ public class LibrarianController {
 			//입력한 회원번호가 존재하는 것이라면 
 			//mbrDao.isExistenceUserSeq(userSeq) 은 true 가 된다.			
 			
-			String yn ="";
-			do {
-				System.out.print("▷ 정말로 대출정지를 하시겠습니까?[Y/N] : ");
-				yn = sc.nextLine();
+			String userName = userDao.getUserName(userSeq);			
+			int isStopedUser = userDao.getloanStop(userSeq);
+			String menuNo = "";
+			do {		
 				
-				if("y".equalsIgnoreCase(yn)) {
+				System.out.println("회원 " + userName  + "님의 대출을 정지하거나 승인합니다.");
+				System.out.println("1.대출정지  2.대출승인  3.나가기");
+				System.out.print("▷ 메뉴선택: ");
+				menuNo = sc.nextLine();
+
+				
+				switch (menuNo) {
+				case "1":
+					if(isStopedUser == 1) {
+						System.out.println("이미 대출이 정지된 회원입니다.");
+						return;
+					}
+					else {
+						int loanStop = userDao.loanStop(userSeq);
+						
+						if(loanStop == 1) {
+							System.out.println("대출정지 성공!");
+						}
+						
+						return;
+					}
 					
-					/*
-					    1. 입력받은 회원번호를 가지고 DB에서 회원의 정보중 LOAN_STOP 컬럼의 값을 1 로 변경한다.
-					    ==> update 처리 
-					    
-					    2. update 처리가 성공되어지면 해당회원은 대출정지가 성공했다라는 메시지를 출력한다.
-					    3. 마지막으로 result = 1; 로 해준다.
-					*/
+				case "2":
+					if(isStopedUser == 0) {
+						System.out.println("이미 대출이 승인된 회원입니다.");
+						return;
+					}
+					else {
+						int loanAllow = userDao.loanAllow(userSeq);
+						
+						if(loanAllow == 1) {
+							System.out.println("대출승인 성공!");
+						}
+						
+						return;
+					}
 					
-					int stopedUser = userDao.loanStop(userSeq);
-					
-					if(stopedUser == 1) {
-						result = 1;
-					}					
-					
+				case "3":
+					//나가기					
+					return;
+				default:
+					System.out.println("[경고] 메뉴에 없는 번호입니다. \n");
+					break;
 				}
-				else if("n".equalsIgnoreCase(yn)) {
-					
-				}
-				else {
-					System.out.println(">> [경고] Y 또는 N만 입력하세요! << \n");
-				}
-			
-			}while(! ("y".equalsIgnoreCase(yn) || "n".equalsIgnoreCase(yn)) );
-			 
+				
+			}while(true);	 
 		}
 		else {
 			System.out.println(">> 회원번호 " + userSeq + "인 회원은 DB상에 존재하지 않습니다. << \n");
-			result = -1;
 		}		
 		
-		return result;
 		
-	}	//end of private int loanStop(LibrarianDTO loginLibDto, Scanner sc)-------------
+	}	//end of private void loanStop(LibrarianDTO loginLibDto, Scanner sc)-------------
 		
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -358,52 +364,52 @@ public class LibrarianController {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 정렬방식에 따른 모든 도서를 조회(select) 해주는 메서드
-		private void showAllBooks(String sortChoice) {
+	private void showAllBooks(String sortChoice) {
+		
+		String[] arrNumber = {"1", "2", "3", "4"};
+		boolean isFind = false;
+		
+		for(int i=0; i<arrNumber.length; i++) {
 			
-			String[] arrNumber = {"1", "2", "3", "4"};
-			boolean isFind = false;
+			if(arrNumber[i].equals(sortChoice)) {
+				isFind = true;
+				break;
+			}
 			
-			for(int i=0; i<arrNumber.length; i++) {
-				
-				if(arrNumber[i].equals(sortChoice)) {
-					isFind = true;
-					break;
-				}
-				
-			}	//end of for(int i=0; i<arrNumber.length; i++) --------
+		}	//end of for(int i=0; i<arrNumber.length; i++) --------
+		
+		if(isFind) {
 			
-			if(isFind) {
+			List<LoanBookDTO> LoanBookList = loanBookDao.showAllBooks(sortChoice);
+			
+			if(LoanBookList != null) {
 				
-				List<LoanBookDTO> LoanBookList = loanBookDao.showAllBooks(sortChoice);
+				StringBuilder sb = new StringBuilder();
 				
-				if(LoanBookList != null) {
-					
-					StringBuilder sb = new StringBuilder();
-					
-					sb.append("-".repeat(50) + "\n");			
-					sb.append("도서ID\t도서명\tISBN\t대출여부\t상태\n");
-					sb.append("-".repeat(50) + "\n");
-					
-					LoanBookList.forEach(loanBookDto -> { 
-//							String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
-						sb.append(loanBookDto.getBook_id() + " " + 
-								loanBookDto.getBook_name() + " " +	
-								loanBookDto.getIsbn() + " " + 
-								loanBookDto.getLoan_status_kor() + " " + 
-								loanBookDto.getBook_status() + "\n");
-					});
-					System.out.println(sb);			
-				}
-				else {
-					System.out.println(">> 도서가 한 권도 없습니다. <<");
-				}
+				sb.append("-".repeat(50) + "\n");			
+				sb.append("도서ID\t도서명\tISBN\t대출여부\t상태\n");
+				sb.append("-".repeat(50) + "\n");
+				
+				LoanBookList.forEach(loanBookDto -> { 
+//						String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
+					sb.append(loanBookDto.getBook_id() + " " + 
+							loanBookDto.getBook_name() + " " +	
+							loanBookDto.getIsbn() + " " + 
+							loanBookDto.getLoan_status_kor() + " " + 
+							loanBookDto.getBook_status() + "\n");
+				});
+				System.out.println(sb);			
 			}
 			else {
-				System.out.println(">> 정렬에 없는 번호 입니다!! << \n");
-			}		
-			
-			
-		}	// end of private void showAllBooks(String sortChoice)---------------
+				System.out.println(">> 도서가 한 권도 없습니다. <<");
+			}
+		}
+		else {
+			System.out.println(">> 정렬에 없는 번호 입니다!! << \n");
+		}		
+		
+		
+	}	// end of private void showAllBooks(String sortChoice)---------------
 
 	
 	
@@ -1273,7 +1279,7 @@ public class LibrarianController {
 				sb.append("-".repeat(50) + "\n");
 				
 				wishBookList.forEach(wishbookDto -> { 
-//							String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
+//								String status = mbrDto.getStatus() == 1? "가입중":"탈퇴";
 					sb.append(wishbookDto.getWish_book_no() + " " + 
 							wishbookDto.getUser_seq() + " " +
 							wishbookDto.getWish_book_name() + " " + 
@@ -1997,63 +2003,107 @@ public class LibrarianController {
 	   
 	   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	   
-	   // 사서 정보 변경
-	   private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc) {
+	// 사서 정보 변경
+	      private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc) {
+	            
+	          
+	          System.out.println(librarian_dto.toString());
+	          
+	          System.out.println("== [주의사항] 변경하지 않으려면 그냥 엔터하세요!! ==");
+	          
+	          // 1. 비밀번호 입력 및 유효성 검사
+	          String newPasswd;
+	          while (true) {
+	              System.out.print("▷ 비밀번호 : ");
+	              newPasswd = sc.nextLine();
+
+	              // [경우 A] 변경 없이 그냥 엔터를 친 경우 -> 기존 비밀번호 유지
+	              if (newPasswd.isBlank()) {
+	                  newPasswd = librarian_dto.getPw();
+	                  break;
+	              }
+
+	              // [경우 B] 새로운 비밀번호 입력 -> 유효성 검사 수행
+	              if (utils.isUsePasswd(newPasswd)) {
+	                  break; // 통과 시 루프 탈출 (loginUserDto에 아직 set 하지 않음!)
+	              } else {
+	                  System.out.println("[경고] 비밀번호는 영문자, 숫자, 특수기호가 혼합된 8~30자이어야 합니다. 다시 입력하세요.\n");
+	              }
+	          }
+	          
+	          // 2. 성명 입력 및 유효성 검사
+	          String newName;
+	          while (true) {
+	              System.out.print("▷ 성명 : ");
+	              newName = sc.nextLine();
+
+	              // 1) 엔터만 입력한 경우 -> 기존 로그인 유저의 이름 유지하고 탈출
+	              if (newName.isBlank()) {
+	                  newName = librarian_dto.getName();
+	                  break;
+	              }
+
+	              // 2) loginUserDto에 직접 set 시도
+	              librarian_dto.setName(newName);
+
+	              // 3) set 결과 DTO 내부의 이름이 내가 입력한 newName과 같아졌는지 검사
+	              if (newName.equals(librarian_dto.getName())) {
+	                  break; // 정규식 통과 -> 값이 저장되었으므로 루프 탈출
+	              }
+
+	              // 통과하지 못한 경우:
+	              // setName() 내부에서 [경고] 문구가 출력되고,
+	              // newName과 달라 루프를 계속 돈다 정규식에 맞지 않아 계속 반복한다.
+	          }          
+	          
+	          // 3. 연락처 입력 및 유효성 검사
+	          String newMobile;
+	          while (true) {
+	              System.out.print("▷ 연락처 : ");
+	              newMobile = sc.nextLine();
+
+	              // 1) 엔터(공백)만 입력한 경우 -> 기존 로그인 유저의 연락처 유지하고 탈출
+	              if (newMobile.isBlank()) {
+	                  newMobile = librarian_dto.getTel();
+	                  break;
+	              }
+
+	              // 2) loginUserDto에 직접 set 시도!
+	              librarian_dto.setTel(newMobile);
+
+	              // 3) set 후의 값(getTel)이 내가 입력한 newMobile과 동일한지 확인
+	              if (newMobile.equals(librarian_dto.getTel())) {
+	                  break; // 정규식 통과 -> 값이 저장되었으므로 루프 탈출
+	              }
+
+	              // 통과하지 못한 경우:
+	              // setTel() 내부에서 [경고] 문구가 출력되고
+	              // newMobile과 달라 루프를 계속 돈다. 정규식에 맞지 않아 계속 반복한다.
+	          }
+
+	          // 이렇게 복수개의 값은 Spring 에서 지원하지 않음
+	          // Java에서는 가능하지만 Spring 을 위해서 Map 으로 변환해서 전달
+	          Map<String, String> paraMap = new HashMap<>();
+
+	          paraMap.put("Lib_seq", String.valueOf(librarian_dto.getLib_seq()));  // valueOf 는 String 을 int 로 형변환 해주는 함수
+	          paraMap.put("newPasswd", newPasswd);
+	          paraMap.put("newName", newName);
+	          paraMap.put("newMobile", newMobile);
+	          
+	          int n = librarianDao.updateLibrarianInfo(paraMap);
+	          
+	          if(n == 1) {
+	             System.out.println("\n>>> 수정 완료 !!! <<< \n");
+	             
+	             System.out.println("===> 수정된 나의 정보 <===");
+
+	             
+	             System.out.println(librarian_dto);
+	          } else {
+	             System.out.println("변경 실패");
+	          }
 	         
-	        System.out.println(librarian_dto.toString());
-	       
-	        System.out.println("== [주의사항] 변경하지 않으려면 그냥 엔터하세요!! ==");
-	       
-	        System.out.print("▷ 비밀번호 : ");
-	        String newPasswd = sc.nextLine();
-	       
-	        System.out.print("▷ 성명 : ");
-	        String newName = sc.nextLine();
-	       
-	        System.out.print("▷ 연락처 : ");
-	        String newMobile = sc.nextLine();
-	       
-	       
-	        // 비밀번호가 그냥 엔터 또는 공백으로만 되어지는 경우
-	        if(newPasswd.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
-	           newPasswd = librarian_dto.getPw();
-	        }
-	        // 성명이 그냥 엔터 또는 공백으로만 되어지는 경우
-	        if(newName.isBlank()) {         // 성명이 그냥 엔터 또는 그냥 공백일 경우
-	           newName = librarian_dto.getName();
-	        }   
-	        // 연락처가 그냥 엔터 또는 공백으로만 되어지는 경우
-	        if(newMobile.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
-	           newMobile = librarian_dto.getTel();
-	        }
-	       
-	        // 이렇게 복수개의 값은 Spring 에서 지원하지 않음
-	        // Java에서는 가능하지만 Spring 을 위해서 Map 으로 변환해서 전달
-	        Map<String, String> paraMap = new HashMap<>();
-
-	        paraMap.put("Lib_seq", String.valueOf(librarian_dto.getLib_seq()));  // valueOf 는 String 을 int 로 형변환 해주는 함수
-	        paraMap.put("newPasswd", newPasswd);
-	        paraMap.put("newName", newName);
-	        paraMap.put("newMobile", newMobile);
-	       
-	        int n = librarianDao.updateLibrarianInfo(paraMap);
-	       
-	        if(n == 1) {
-	           System.out.println("\n>>> 수정 완료 !!! <<< \n");
-	          
-	           System.out.println("===> 수정된 나의 정보 <===");
-
-	           librarian_dto.setPw(newPasswd);
-	           librarian_dto.setName(newName);
-	           librarian_dto.setTel(newMobile);
-	          
-	           System.out.println(librarian_dto);
-	        } else {
-	           System.out.println("변경 실패");
-	        }
-
-	      
-	   } // end of private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc)----------    
+	      } // end of private void updateLibrarianInfo(LibrarianDTO librarian_dto, Scanner sc)----------        
 	   
 
 	

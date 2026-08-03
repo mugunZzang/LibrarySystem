@@ -21,6 +21,17 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
+	
+	// === 자원반납을 해주는 메서드 === //
+	private void close() {
+		try {
+			if(rs != null)    {rs.close();    rs = null;}
+			if(pstmt != null) {pstmt.close(); pstmt = null;}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}// end of private void close()--------------
+		
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
 
@@ -48,7 +59,7 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 			e.printStackTrace();
 			result = -1;
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return result;
@@ -80,6 +91,8 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}finally {
+			close();
 		}
 		return result;
 	}
@@ -151,7 +164,7 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return resultList;
@@ -179,6 +192,8 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			result = -1;
+		}finally {
+			close();
 		}
 		
 		return result;

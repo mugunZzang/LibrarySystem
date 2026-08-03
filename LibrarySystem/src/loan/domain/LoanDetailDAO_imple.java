@@ -20,6 +20,16 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 	private PreparedStatement pstmt;
 	private ResultSet rs;
 	
+	// === 자원반납을 해주는 메서드 === //
+	private void close() {
+		try {
+			if(rs != null)    {rs.close();    rs = null;}
+			if(pstmt != null) {pstmt.close(); pstmt = null;}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
@@ -64,7 +74,7 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 			e.printStackTrace();
 		} finally {
 			
-			//ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 
@@ -109,7 +119,8 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 			result = -1;
 			
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			
+			close();
 		}
 		
 		return result;
@@ -148,8 +159,8 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 			e.printStackTrace();
 			cnt = -1;
 		} finally {
-			//ProjectDBConnection.closeConnection();
 			
+			close();
 		}
 		
 		
@@ -182,8 +193,8 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 			e.printStackTrace();
 			result = -1;
 		}  finally {
-			//ProjectDBConnection.closeConnection();
 			
+			close();
 		}
 		
 		return result;
@@ -220,7 +231,8 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			
+			close();
 		}
 		
 		return result;
@@ -242,9 +254,9 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 		
 		try {
 			pstmt = conn.prepareStatement(sql);
-			System.out.println("넘겨받은loanDetailNo : " + loanDetailNo);
-			int loandetailnoInt = Integer.parseInt(loanDetailNo);
-			System.out.println("정수화loanDetailNo : " + loandetailnoInt);
+			
+			
+			
 			
 			pstmt.setInt(1, Integer.parseInt(loanDetailNo));
 			
@@ -258,6 +270,9 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			
+		}finally {
+			
+			close();
 		}
 		
 		return result;

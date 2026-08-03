@@ -534,6 +534,8 @@ public class BookDAO_imple implements BookDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			result = -1;
+		} finally {
+			close();
 		}
 		
 		return result;

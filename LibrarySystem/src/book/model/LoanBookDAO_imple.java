@@ -18,6 +18,16 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 	private PreparedStatement pstmt;   
 	private ResultSet rs;
 	
+	// === 자원반납을 해주는 메서드 === //
+	private void close() {
+		try {
+			if(rs != null)    {rs.close();    rs = null;}
+			if(pstmt != null) {pstmt.close(); pstmt = null;}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	// 해당 도서가 존재하는지 검사하는 메소드
@@ -48,7 +58,7 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 			e.printStackTrace();
 			result = false;
 		} finally {
-			//ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return result;
@@ -94,7 +104,7 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-		//	ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return result;
@@ -124,8 +134,8 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 		}catch (SQLException e) {
 			e.printStackTrace();
 			result = -1;
-		}finally {
-		//	ProjectDBConnection.closeConnection();
+		} finally {
+			close();
 		}
 		
 		return result;
@@ -157,6 +167,8 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			result = -1;
+		}finally {
+			close();
 		}
 		
 		
@@ -190,7 +202,9 @@ public class LoanBookDAO_imple implements LoanBookDAO {
         } catch (SQLException e) {
             e.printStackTrace();
             result = -1;
-        }
+        }finally {
+			close();
+		}
 
         return result;
 	}
@@ -228,6 +242,8 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}finally {
+			close();
 		}
 		
 		return result;
@@ -257,7 +273,7 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 			e.printStackTrace();
 			result = -1;
 		} finally {
-		//	ProjectDBConnection.closeConnection();
+			close();
 		}
 		
 		return result;
@@ -324,7 +340,7 @@ public class LoanBookDAO_imple implements LoanBookDAO {
 	         e.printStackTrace();
 	     } 
       	 finally {
-	       //  close();
+	        close();
 	     }
 	      
 	     return loanBookList;          

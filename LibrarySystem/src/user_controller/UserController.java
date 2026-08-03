@@ -13,6 +13,7 @@ import book.domain.BookDTO;
 import book.domain.WishBookDTO;
 import book.model.BookDAO;
 import book.model.BookDAO_imple;
+import common.utils;
 import librarian.controller.LibrarianController;
 import librarian.domain.LibrarianDTO;
 import librarian.model.LibrarianDAO;
@@ -201,7 +202,7 @@ public class UserController {
 			                        System.out.println("존재하지 않는 메뉴입니다.");
 			                        break;
 			                     }
-		                     } while( "4".equals(favNo));
+		                     } while(!"4".equals(favNo));
 		                  
 		                  
 		                  break;
@@ -502,31 +503,39 @@ public class UserController {
 	
 	
 	// 포인트 충전
-	private void pointRecharge(Scanner sc, UserDTO loginUserDto) {
-      
-      do {
-         try {
-            System.out.print("얼마를 충전하시겠습니까?");
-            
-            int addPoint = sc.nextInt();
-            
-            loginUserDto.setPoint(loginUserDto.getPoint() + addPoint);
-            
-            int n = userDao.addPoint(loginUserDto);
-            
-            if( n == 1) {
-               System.out.println("포인트가 충전되었습니다.");
-            }
-            else {
-               System.err.println("포인트 충전에 실패했습니다. ㅠㅠ");
-            }// end of if(n == 1)
-            break;
-         }catch(InputMismatchException e) {
-            System.out.println("숫자만 입력해주세요.");
-            sc.nextLine();
-         }
-      }while(true);
-   }
+	   private void pointRecharge(Scanner sc, UserDTO loginUserDto) {
+	      
+	      do {
+	         try {
+	            System.out.print("얼마를 충전하시겠습니까?");
+	            
+	            
+	            int addPoint = sc.nextInt();
+	            sc.nextLine();
+	            
+	            if(addPoint > 0) {
+	               loginUserDto.setPoint(loginUserDto.getPoint() + addPoint);
+	               
+	               int n = userDao.addPoint(loginUserDto);
+	               
+	               if( n == 1) {
+	                  System.out.println("포인트가 충전되었습니다.");
+	               }
+	               else {
+	                  System.err.println("포인트 충전에 실패했습니다. ㅠㅠ");
+	               }// end of if(n == 1)
+	               break;
+	            }
+	            else {
+	               System.out.println("0 이상의 숫자만 입력해주세요!");
+	            }
+	         }catch(InputMismatchException e) {
+	            System.out.println("숫자만 입력해주세요.");
+	            sc.nextLine();
+	         }
+	        
+	      }while(true);
+	   }// end of private void pointRecharge(Scanner sc, UserDTO loginUserDto)
 
 
 
@@ -762,18 +771,16 @@ public class UserController {
     				           );
     	}//end of for--
     	
-    	System.out.println("0.이전 메뉴");  //이전 메뉴(회원메뉴)로 돌아감 
-    	System.out.print("번호 선택 : ");
+    	System.out.print("뒤로가기(엔터) : ");
 
-    	String menu = sc.nextLine();
+        String menu = sc.nextLine();
 
-    	if(menu.equals("0")) {
-    	    return;
-    	    
-    	} else{
-    		System.out.println("메뉴에 있는 번호만 입력해주세요!!");
-    		
-    	}
+        if (menu.isEmpty()) {
+            return;
+        } else {
+            System.out.println("엔터만 눌러주세요!");
+        } 
+
     	}
     	
     }//end of public static void bestSeller--- 
@@ -1026,12 +1033,42 @@ public class UserController {
 				
 		    	case "1":
 		    		
-		    	System.out.println("도서명 입력: ");
-		    	String wish_book_name=sc.nextLine();
-		    	System.out.println("저자명 입력: ");
-		    	String wish_book_author=sc.nextLine();
-		    	System.out.println("출판사 입력: ");
-		    	String wish_book_publisher=sc.nextLine();
+		    		String wish_book_name;
+
+	                   while(true) {
+	                       System.out.print("도서명 입력: ");
+	                       wish_book_name = sc.nextLine();
+
+	                       if(wish_book_name.length() <= 50) {
+	                           break;
+	                       }
+
+	                       System.out.println("50자 이하로 입력해주세요!");
+	                   }
+
+	                   String wish_book_author;
+	                   while(true) {
+	                       System.out.print("저자명 입력: ");
+	                       wish_book_author = sc.nextLine();
+
+	                       if(wish_book_author.length() <= 30) {
+	                           break;
+	                       }
+
+	                       System.out.println("30자 이하로 입력해주세요!");
+	                   }
+	                   String wish_book_publisher;
+	                   while(true) {
+	                       System.out.print("출판사 입력: ");
+	                       wish_book_publisher = sc.nextLine();
+
+	                       if(wish_book_publisher.length() <= 10) {
+	                           break;
+	                       }
+
+	                       System.out.println("10자 이하로 입력해주세요!");
+	                   }             
+
 		    	
 		    	
 		    	  WishBookDTO dto=new WishBookDTO();
@@ -1084,297 +1121,391 @@ public class UserController {
 	
 
 		//===연체료 납부 메서드===//
-	        private void payOverdueFee(Scanner sc, UserDTO loginUserDto) {
-	           int fee = 0;
-	               System.out.println("회원님의 연체료는 " + loginUserDto.getOverdue_fee() + "원입니다.");
-	              
-	               if(loginUserDto.getOverdue_fee() != 0) {
-	               do {
-	                  try {
-	                     System.out.print("얼마 납부하시겠습니까? : ");
-	                     
-	                     fee = sc.nextInt();
-	            
-	                     if (fee <= 0) {
-	                         System.out.println("0원보다 큰 금액을 입력해주세요.");
-	                         continue;
-	                     }// end of if (fee <= 0)
-	            
-	                     if (fee > loginUserDto.getOverdue_fee()) {
-	                         System.out.println("연체료보다 많은 금액은 납부할 수 없습니다.");
-	                         continue;    
-	                     } // end of if (fee > loginUserDto.getOverdue_fee())
-	                     
-	                     break;
-	                     
-	                     }catch(InputMismatchException e){
-	                         System.out.println("숫자만 입력해주세요."); 
-	                         sc.nextLine();
-	                     }
-	               }while(true);
-	               
-
-	               Map<String, Object> map = new HashMap<>();
-	               map.put("user_id", loginUserDto.getId());
-	               map.put("fee", fee);
-
-	               int n = userDao.payOverdueFee(map);
-	               
-	               if(n == 1) {
-	                  loginUserDto.setOverdue_fee(loginUserDto.getOverdue_fee() - fee);
-	                  
-	                  System.out.println("납부가 완료되었습니다.");
-	                  System.out.println("남은 연체료 : " + loginUserDto.getOverdue_fee() + "원");
-	               }//end of if(n == 1)
-	                 else {
-	                    System.out.println("납부가 완료되지 않았습니다.");
-	                 }
-	               }
-	               else
-	                  System.out.println("납부 안하셔도됩니다.");
-	               
-	               
-	         
-	         }
-		  
-		  
-		  
-		// 5. 반납 연기
-          private void returnDate(Scanner sc, UserDTO loginUserDto) {
+         private void payOverdueFee(Scanner sc, UserDTO loginUserDto) {
+            int fee = 0;
+                System.out.println("회원님의 연체료는 " + loginUserDto.getOverdue_fee() + "원입니다.");
+               
+                if(loginUserDto.getOverdue_fee() != 0) {
+                do {
+                   try {
+                      System.out.print("얼마 납부하시겠습니까? : ");
+                      
+                      fee = sc.nextInt();
+                      sc.nextLine();
              
-             boolean exist = false;
-           
-             List<Map<String,String>> returnList = loanDao.returnDate(loginUserDto.getUser_seq());
-               
-               StringBuilder sb = new StringBuilder();
-               
-               sb.append("-".repeat(40)+"\n");
-               sb.append(" 대여상세번호     도서명      대여일자     반납기한일 \n");
-               sb.append("-".repeat(40)+"\n");
-               
-               for( Map<String, String> map : returnList) {
-                  
-                  sb.append(map.get("LOAN_DETAIL_NO")+ "\t" +map.get("book_name")+map.get("LOAN_DATE")+map.get("RETURN_DUE_DATE")+"\n");
-                  
-               } // end of for( Map<String, String> map : returnList)
-               
-               System.out.println(sb.toString());
-               
-               System.out.print("연기할 도서의 대여번호를 입력하세요. : ");
-               
-               String menuNo = sc.nextLine();
-               
-               // 대출권수가 1권일때
-               if(returnList.size() == 1) {
-         
-                  for(Map<String, String> map : returnList) {
-   
-                      if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
-                         
-                         LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
-                         LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
-                         
-                         long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
-                         
-                         // 연기 할것인지
-                         if(days != 10) {
-                            
-                            int n = loanDao.returnAdd(menuNo);
-                            
-                            if(n == 1) {
-                               System.out.println("연기 되셨습니다");
-                            }
-                            else {
-                               System.out.println("연기 되지않았습니다");
-                            }
-                            
-                         }
-                         else {
-                            System.out.println("더이상 연기 할 수 없습니다.");
-                         }
-                         
-                          break;
-                      }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
-               
-                      exist = true;
-                  }// end of for(Map<String, String> map : returnList)
-                  
-                  if(exist) {
-                     System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
-                  }
-   
-                }// end of if(returnList.size() == 1)
-               
-               //대출권수가 2권일때
-               else if(returnList.size() == 2) {
-                  for(Map<String, String> map : returnList) {
-
-                      if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
-                         
-                         LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
-                         LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
-                         
-                         long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
-                         
-                         // 연기 할것인지
-                         if(days != 10) {
-                            
-                            int n = loanDao.returnAdd2(menuNo);
-                            
-                            if(n == 1) {
-                               System.out.println("연기 되셨습니다");
-                            }
-                            else {
-                               System.out.println("연기 되지않았습니다");
-                            }
-                            
-                         }
-                         else {
-                            System.out.println("더이상 연기 할 수 없습니다.");
-                         }
-                         
-                          break;
-                      }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
-               
-                      exist = true;
-                  }// end of for(Map<String, String> map : returnList)
-                  
-                  if(exist) {
-                     System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
-                  }
-
-                }// end of else if(returnList.size() == 2)
-               //대출권수가 3권일때
-               else if(returnList.size() == 3) {
-                  for(Map<String, String> map : returnList) {
-
-                      if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
-                         
-                         LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
-                         LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
-                         
-                         long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
-                         
-                         // 연기 할것인지
-                         if(days != 10) {
-                            
-                            int n = loanDao.returnAdd3(menuNo);
-                            
-                            if(n == 1) {
-                               System.out.println("연기 되셨습니다");
-                            }
-                            else {
-                               System.out.println("연기 되지않았습니다");
-                            }
-                            
-                         }
-                         else {
-                            System.out.println("더이상 연기 할 수 없습니다.");
-                         }
-                         
-                          break;
-                      }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
-               
-                      exist = true;
-                  }// end of for(Map<String, String> map : returnList)
-                  
-                  if(exist) {
-                     System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
-                  }
-
-                }// end of else if(returnList.size() == 3)
-               
-               else if(returnList.size() == 0){
-                  System.out.println(" 반납할 도서가 없습니다.");
-               }
+                      if (fee <= 0) {
+                          System.out.println("0원보다 큰 금액을 입력해주세요.");
+                          continue;
+                      }// end of if (fee <= 0)
+             
+                      if (fee > loginUserDto.getOverdue_fee()) {
+                          System.out.println("연체료보다 많은 금액은 납부할 수 없습니다.");
+                          continue;    
+                      } // end of if (fee > loginUserDto.getOverdue_fee())
+                      
+                      break;
+                      
+                      }catch(InputMismatchException e){
+                          System.out.println("숫자만 입력해주세요."); 
+                          sc.nextLine();
+                      }
+                }while(true);
                 
-          } // end of private void returnDate(UserDTO loginUserDto)
 
-	 
-		 // 6. 반납 이력
-		    private void returnHistory(UserDTO loginUserDto) {
-		      
-		       List<Map<String,String>> HistoryList = loanDao.returnHistory(loginUserDto.getUser_seq());
-		       
-		       if(HistoryList.size() > 0) {
-		         
-		         StringBuilder sb = new StringBuilder();
-		         
-		         sb.append("-".repeat(30)+"\n");
-		         sb.append(" 대여상세번호   도서명  \n");
-		         sb.append("-".repeat(30)+"\n");
-		         
-		         for( Map<String, String> map : HistoryList) {
-		            
-		            sb.append(map.get("LOAN_DETAIL_NO")+ "\t" +map.get("book_name")+"\n");
-		            
-		         } // end of for( Map<String, String> map : returnList)
-		         
-		         System.out.println(sb.toString());
-		      
-		       }
-		       else {
-		          System.out.println(" 반납 이력이 업습니다.");
-		       }
-		    }// end of private void returnHistory(UserDTO loginUserDto)
+                Map<String, Object> map = new HashMap<>();
+                map.put("user_id", loginUserDto.getId());
+                map.put("fee", fee);
+
+                int n = userDao.payOverdueFee(map);
+                
+                if(n == 1) {
+                   loginUserDto.setOverdue_fee(loginUserDto.getOverdue_fee() - fee);
+                   
+                   System.out.println("납부가 완료되었습니다.");
+                   System.out.println("남은 연체료 : " + loginUserDto.getOverdue_fee() + "원");
+                }//end of if(n == 1)
+                  else {
+                     System.out.println("납부가 완료되지 않았습니다.");
+                  }
+                }
+                else
+                   System.out.println("납부 안하셔도됩니다.");
+                
+                
+          
+          }// end of private void payOverdueFee(Scanner sc, UserDTO loginUserDto)
+
+		  
+		  
+		  
+      // 5. 반납 연기
+         private void returnDate(Scanner sc, UserDTO loginUserDto) {
+            
+            boolean exist = false;
+            
+            // returnDate는 그 회원의 대출권수를 불러온다.
+            List<Map<String,String>> returnList = loanDao.returnDate(loginUserDto.getUser_seq());
+              
+              StringBuilder sb = new StringBuilder();
+              
+              sb.append("-".repeat(40)+"\n");
+              sb.append(" 대여상세번호     도서명      대여일자     반납기한일 \n");
+              sb.append("-".repeat(40)+"\n");
+              
+              for( Map<String, String> map : returnList) {
+                 
+                 sb.append(map.get("LOAN_DETAIL_NO")+ "\t" +map.get("book_name")+"\t"+map.get("LOAN_DATE")+"\t"+map.get("RETURN_DUE_DATE")+"\n");
+                 
+              } // end of for( Map<String, String> map : returnList)
+              
+              System.out.println(sb.toString());
+              
+              System.out.print("연기할 도서의 대여번호를 입력하세요. : ");
+              
+              String menuNo = sc.nextLine();
+              
+              // 대출권수가 1권일때
+              if(returnList.size() == 1) {
+        
+                 for(Map<String, String> map : returnList) {
+  
+                     if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
+                        
+                       exist = true;
+                        
+                        LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
+                        LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
+                        
+                        long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
+                        
+                        // 연기 할것인지
+                        if(days != 10) {
+                           
+                           int n = loanDao.returnAdd(menuNo);
+                           
+                           if(n == 1) {
+                              System.out.println("연기 되셨습니다");
+                           }
+                           else {
+                              System.out.println("연기 되지않았습니다");
+                           }
+                           
+                        }
+                        else {
+                           System.out.println("더이상 연기 할 수 없습니다.");
+                        }
+                        
+                         break;
+                     }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
+              
+                
+                 }// end of for(Map<String, String> map : returnList)
+                 
+                 if(!exist) {
+                    System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
+                 }
+  
+               }// end of if(returnList.size() == 1)
+              
+              //대출권수가 2권일때
+              else if(returnList.size() == 2) {
+                
+                 for(Map<String, String> map : returnList) {
+
+                     if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
+                        
+                       int loanCnt = Integer.parseInt(map.get("cnt"));
+                        
+                       exist = true;
+                       
+                        LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
+                        LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
+                        
+                        long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
+                        
+                        // 연기 할것인지
+                        if(days != 10) {
+                           
+                           //같은 loan_no 값이 2개일때
+                          if(loanCnt == 2) {
+                              int n = loanDao.returnAdd2(menuNo);
+                              
+                              if(n == 1) {
+                                 System.out.println("연기 되셨습니다");
+                              }
+                              else {
+                                 System.out.println("연기 되지않았습니다");
+                              }
+                          }// end of if(loanCnt == 2)
+                          //같은 loan_no 값이 1개일때
+                          else {
+                             int n = loanDao.returnAdd(menuNo);
+                              
+                              if(n == 1) {
+                                 System.out.println("연기 되셨습니다");
+                              }
+                              else {
+                                 System.out.println("연기 되지않았습니다");
+                              }
+                           
+                          }
+                        }
+                        else {
+                           System.out.println("더이상 연기 할 수 없습니다.");
+                        }
+                        
+                         break;
+                     }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
+              
+                     
+                 }// end of for(Map<String, String> map : returnList)
+                 
+                 if(!exist) {
+                    System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
+                 }
+          
+
+               }// end of else if(returnList.size() == 2)
+              //대출권수가 3권일때
+              else if(returnList.size() == 3) {
+                // 대출권수의 loan_no이 3개가 같을때 
+                 for(Map<String, String> map : returnList) {
+
+                     if(map.get("LOAN_DETAIL_NO").equals(menuNo)) {
+                        
+                       int loanCnt = Integer.parseInt(map.get("cnt"));
+                       
+                       exist = true;
+                       
+                        LocalDate loan_date = LocalDate.parse(map.get("LOAN_DATE"));
+                        LocalDate RETURN_DUE_DATE = LocalDate.parse(map.get("RETURN_DUE_DATE"));
+                        
+                        long days = ChronoUnit.DAYS.between(loan_date, RETURN_DUE_DATE);
+                        
+                        // 연기 할것인지
+                        if(days != 10) {
+                          //같은 loan_no 값이 3개일때
+                          if (loanCnt == 3 || loanCnt == 2) {
+                              int n = loanDao.returnAdd2(menuNo);
+                              
+                              if(n == 1) {
+                                 System.out.println("연기 되셨습니다");
+                              }
+                              else {
+                                 System.out.println("연기 되지않았습니다");
+                              }
+                          }// end of if (loanCnt == 3 || loanCnt == 2)
+                          
+                          //같은 loan_no 값이 1개일때
+                          else {
+                             int n = loanDao.returnAdd(menuNo);
+                              
+                              if(n == 1) {
+                                 System.out.println("연기 되셨습니다");
+                              }
+                              else {
+                                 System.out.println("연기 되지않았습니다");
+                              }
+                          }
+                           
+                        }
+                        else {
+                           System.out.println("더이상 연기 할 수 없습니다.");
+                        }
+                        
+                         break;
+                     }// end of if(map.get("LOAN_DETAIL_NO").equals(menuNo))
+              
+                     
+                 }// end of for(Map<String, String> map : returnList)
+                 
+                 if(!exist) {
+                    System.out.println("해당 도서 상세 번호는 없는 번호입니다.");
+                 }
+                 // 대출권수의 loan_no이 2개가 같을때
+                 
+                 
+                 
+                 // 대출권수의 loan_no이 다를때
+
+               }// end of else if(returnList.size() == 3)
+              
+              else if(returnList.size() == 0){
+                 System.out.println(" 반납할 도서가 없습니다.");
+              }
+               
+         } // end of private void returnDate(UserDTO loginUserDto)
+
+   
+      // 6. 반납 이력
+         private void returnHistory(UserDTO loginUserDto) {
+           
+            List<Map<String,String>> HistoryList = loanDao.returnHistory(loginUserDto.getUser_seq());
+            
+            if(HistoryList.size() > 0) {
+              
+              StringBuilder sb = new StringBuilder();
+              
+              sb.append("-".repeat(30)+"\n");
+              sb.append(" 대여상세번호   도서명  \n");
+              sb.append("-".repeat(30)+"\n");
+              
+              for( Map<String, String> map : HistoryList) {
+                 
+                 sb.append(map.get("LOAN_DETAIL_NO")+ "\t" +map.get("book_name")+"\n");
+                 
+              } // end of for( Map<String, String> map : returnList)
+              
+              System.out.println(sb.toString());
+           
+            }
+            else {
+               System.out.println(" 반납 이력이 없습니다.");
+            }
+         }// end of private void returnHistory(UserDTO loginUserDto)
 	
 
-		    // 내 정보 변경 메서드
-		    private void updateMyInfo(UserDTO loginUserDto, Scanner sc) {
-		    
-		       System.out.println(loginUserDto.toString());
-		       
-		       System.out.println("== [주의사항] 변경하지 않으려면 그냥 엔터하세요!! ==");
-		       
-		       System.out.print("▷ 비밀번호 : ");
-		       String newPasswd = sc.nextLine();
-		       
-		       System.out.print("▷ 성명 : ");
-		       String newName = sc.nextLine();
-		       
-		       System.out.print("▷ 연락처 : ");
-		       String newMobile = sc.nextLine();
-		       
-		       
-		       // 비밀번호가 그냥 엔터 또는 공백으로만 되어지는 경우
-		       if(newPasswd.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
-		          newPasswd = loginUserDto.getPw();
-		       }
-		       // 성명이 그냥 엔터 또는 공백으로만 되어지는 경우
-		       if(newName.isBlank()) {         // 성명이 그냥 엔터 또는 그냥 공백일 경우
-		          newName = loginUserDto.getName();
-		       }   
-		       // 연락처가 그냥 엔터 또는 공백으로만 되어지는 경우
-		       if(newMobile.isBlank()) {         // 비밀번호가 그냥 엔터 또는 그냥 공백일 경우
-		          newMobile = loginUserDto.getTel();
-		       }
-		       
-		       // 이렇게 복수개의 값은 Spring 에서 지원하지 않음
-		       // Java에서는 가능하지만 Spring 을 위해서 Map 으로 변환해서 전달
-		       Map<String, String> paraMap = new HashMap<>();
+         // 내 정보 변경 메서드
+         private void updateMyInfo(UserDTO loginUserDto, Scanner sc) {
+         
+            System.out.println(loginUserDto.toString());
+            
+            System.out.println("== [주의사항] 변경하지 않으려면 그냥 엔터하세요!! ==");
+            
+            // 1. 비밀번호 입력 및 유효성 검사
+            String newPasswd;
+            while (true) {
+                System.out.print("▷ 비밀번호 : ");
+                newPasswd = sc.nextLine();
 
-		       paraMap.put("userseq", String.valueOf(loginUserDto.getUser_seq()));  // valueOf 는 String 을 int 로 형변환 해주는 함수
-		       paraMap.put("newPasswd", newPasswd);
-		       paraMap.put("newName", newName);
-		       paraMap.put("newMobile", newMobile);
-		       
-		       int n = userDao.updateMyinfo(paraMap);
-		       
-		       if(n == 1) {
-		          System.out.println("\n>>> 수정 완료 !!! <<< \n");
-		          
-		          System.out.println("===> 수정된 나의 정보 <===");
+                // [경우 A] 변경 없이 그냥 엔터를 친 경우 -> 기존 비밀번호 유지
+                if (newPasswd.isBlank()) {
+                    newPasswd = loginUserDto.getPw();
+                    break;
+                }
 
-		          loginUserDto.setPw(newPasswd);
-		          loginUserDto.setName(newName);
-		          loginUserDto.setTel(newMobile);
-		          
-		          System.out.println(loginUserDto);
-		       } else {
-		          System.out.println("변경 실패");
-		       }
+                // [경우 B] 새로운 비밀번호 입력 -> 유효성 검사 수행
+                if (utils.isUsePasswd(newPasswd)) {
+                    break; // 통과 시 루프 탈출 (loginUserDto에 아직 set 하지 않음!)
+                } else {
+                    System.out.println("[경고] 비밀번호는 영문자, 숫자, 특수기호가 혼합된 8~30자이어야 합니다. 다시 입력하세요.\n");
+                }
+            }
+            
+            // 2. 성명 입력 및 유효성 검사
+            String newName;
+            while (true) {
+                System.out.print("▷ 성명 : ");
+                newName = sc.nextLine();
 
-		    }// end of private void updateMyInfo(UserDTO loginUserDto, Scanner sc)----------
+                // 1) 엔터만 입력한 경우 -> 기존 로그인 유저의 이름 유지하고 탈출
+                if (newName.isBlank()) {
+                    newName = loginUserDto.getName();
+                    break;
+                }
+
+                // 2) loginUserDto에 직접 set 시도
+                loginUserDto.setName(newName);
+
+                // 3) set 결과 DTO 내부의 이름이 내가 입력한 newName과 같아졌는지 검사
+                if (newName.equals(loginUserDto.getName())) {
+                    break; // 정규식 통과 -> 값이 저장되었으므로 루프 탈출
+                }
+
+                // 통과하지 못한 경우:
+                // setName() 내부에서 [경고] 문구가 출력되고,
+                // newName과 달라 루프를 계속 돈다 정규식에 맞지 않아 계속 반복한다.
+            }          
+            
+            // 3. 연락처 입력 및 유효성 검사
+            String newMobile;
+            while (true) {
+                System.out.print("▷ 연락처 : ");
+                newMobile = sc.nextLine();
+
+                // 1) 엔터(공백)만 입력한 경우 -> 기존 로그인 유저의 연락처 유지하고 탈출
+                if (newMobile.isBlank()) {
+                    newMobile = loginUserDto.getTel();
+                    break;
+                }
+
+                // 2) loginUserDto에 직접 set 시도!
+                loginUserDto.setTel(newMobile);
+
+                // 3) set 후의 값(getTel)이 내가 입력한 newMobile과 동일한지 확인
+                if (newMobile.equals(loginUserDto.getTel())) {
+                    break; // 정규식 통과 -> 값이 저장되었으므로 루프 탈출
+                }
+
+                // 통과하지 못한 경우:
+                // setTel() 내부에서 [경고] 문구가 출력되고
+                // newMobile과 달라 루프를 계속 돈다. 정규식에 맞지 않아 계속 반복한다.
+            }
+
+            // 이렇게 복수개의 값은 Spring 에서 지원하지 않음
+            // Java에서는 가능하지만 Spring 을 위해서 Map 으로 변환해서 전달
+            Map<String, String> paraMap = new HashMap<>();
+
+            paraMap.put("userseq", String.valueOf(loginUserDto.getUser_seq()));  // valueOf 는 String 을 int 로 형변환 해주는 함수
+            paraMap.put("newPasswd", newPasswd);
+            paraMap.put("newName", newName);
+            paraMap.put("newMobile", newMobile);
+            
+            int n = userDao.updateMyinfo(paraMap);
+            
+            if(n == 1) {
+               System.out.println("\n>>> 수정 완료 !!! <<< \n");
+               
+               System.out.println("===> 수정된 나의 정보 <===");
+
+               
+               System.out.println(loginUserDto);
+            } else {
+               System.out.println("변경 실패");
+            }
+
+         }// end of private void updateMyInfo(UserDTO loginUserDto, Scanner sc)----------
+
 
 
 		    

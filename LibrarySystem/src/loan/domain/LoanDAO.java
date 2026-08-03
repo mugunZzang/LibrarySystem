@@ -19,19 +19,17 @@ public interface LoanDAO {
 	// 반납책 확인
 	   List<Map<String, String>> returnDate(int i);
 
-	   // 반납 3일 추가 1권일때
-	      int returnAdd(String menuNo);
+    // 반납 3일 추가 1권일때
+       int returnAdd(String menuNo);
 
-	      // 반납 3일 추가 2권일때
-	      int returnAdd2(String menuNo);
-	      
-	      // 반납 3일 추가 3권일때
-	      int returnAdd3(String menuNo);
+   // 반납 3일 추가 2권일때
+       int returnAdd2(String menuNo);
 
-	   // 반납 이력
-	   List<Map<String, String>> returnHistory(int i);
-	   
-	   // 사용자의 대출 이력 가져오는 메소드
-	   List<Map<String, String>> getloanList(int userSeq);
+
+     // 반납 이력
+       List<Map<String, String>> returnHistory(int i);
+   
+     // 사용자의 대출 이력 가져오는 메소드
+       List<Map<String, String>> getloanList(int userSeq);
 
 }
