@@ -19,5 +19,8 @@ public interface ResvDetailDAO {
 	// 예약상세목록 삭제하기.
 	int deleteResvDetail(String resvDetailId);
 
+	// 상태가 변경된 대여도서에 대해 예약된 건을 삭제하기
+	int deleteDamagedBook(String bookId);
+
 
 }

@@ -189,7 +189,7 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 							mbrDto.getTel() + " " +
 							mbrDto.getPoint() + " " +
 							mbrDto.getRegisterday() + " " +
-							mbrDto.getLoan_stop() + " " +
+							mbrDto.getLoan_stop_kor() + " " +
 							mbrDto.getOverdue_fee() + " " +
 							"\n");
 				});
@@ -967,14 +967,26 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 								
 								try {
 									conn.setAutoCommit(false);
-									// 적용하기
-									if (loanBookDao.updateLoanBookStatus(bookId, status) == -1) {
-										System.out.println(">> 상태 적용에 실패하였습니다.\n");
-										conn.rollback();
-									}
-									
-									System.out.println(">> 상태 적용이 완료되었습니다.\n");
-									conn.commit();
+			                           // 적용하기
+			                           if (loanBookDao.updateLoanBookStatus(bookId, status) == -1) {
+			                              System.out.println(">> 상태 적용에 실패하였습니다.\n");
+			                              conn.rollback();
+			                           } else {
+			                              System.out.println(">> 상태 적용이 완료되었습니다.\n");
+			                              
+			                              // 해당 책을 예약한 건을 삭제하기
+				                           if (resvDetailDao.deleteDamagedBook(bookId) == -1) {
+				                              System.out.println(">> 상태가 변경된 도서 예약건 삭제에 실패하였습니다.\n");
+				                              conn.rollback();
+				                           } else {
+				                              System.out.println(">> 상태가 변경된 도서 예약건 삭제하였습니다.\n");
+				                           }
+			                           }
+			                           
+			                           
+			                           
+			                           
+			                           conn.commit();
 									
 								} catch (SQLException e) {
 									try {
@@ -1494,6 +1506,8 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 								
 								// 2. 해당 대여상세가 반납기한일로부터 얼마나 지났는지 갖고옴.
 								int delayedDays = loanDetailDao.getReturnDelayedDays(loanDetailNo);
+								System.out.println("연체일수 : " + delayedDays);
+								
 								
 								// 3. 해당 대여상세 업데이트 - 반납완료
 								int n = loanDetailDao.setReturnLoanDetail(loanDetailNo);
@@ -1644,8 +1658,9 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 			// 해당 회원이 대여할 수 있는 권수를 구한다.(3 - 현재대여권수 - 현재예약권수)
 			remainLoanCnt = 3 - loanCnt - resvCnt;
 			
+			
 			// 남은 대여가능권수가 0 이하라면
-			if(remainLoanCnt < 0) {
+			if(remainLoanCnt <= 0) {
 				System.out.println("[경고] 해당 회원의 남은 대여가능권수가 없습니다. \n");
 				return;
 			}

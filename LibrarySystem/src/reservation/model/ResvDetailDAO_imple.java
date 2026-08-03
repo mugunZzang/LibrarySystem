@@ -41,9 +41,9 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 		int result = 0;
 				
 		String sql = "SELECT COUNT(*) AS CNT "
-				+ " FROM TBL_LOAN_DETAIL A "
-				+ " JOIN TBL_LOAN B ON A.LOAN_NO = B.LOAN_NO "
-				+ " WHERE B.USER_SEQ = ? ";
+				+ " FROM TBL_RESV_DETAIL A"
+				+ " JOIN TBL_RESERVATION B ON A.FK_RESV_ID = B.RESV_ID "
+				+ " WHERE B.FK_USER_SEQ = ? ";
 		
 		try {
 			pstmt = conn.prepareStatement(sql);
@@ -197,6 +197,33 @@ public class ResvDetailDAO_imple implements ResvDetailDAO {
 		}
 		
 		return result;
+	}
+
+	
+	
+	// 상태가 변경된 대여도서에 대해 예약된 건을 삭제하기
+	@Override
+	public int deleteDamagedBook(String bookId) {
+		int result = 0;
+	      
+	      String sql = " delete from tbl_resv_detail "
+	            + " where book_id = ? ";
+	      
+	      try {
+	         pstmt = conn.prepareStatement(sql);
+	         
+	         pstmt.setInt(1, Integer.parseInt(bookId));
+	         
+	         result = pstmt.executeUpdate();
+	         
+	      } catch (SQLException e) {
+	         e.printStackTrace();
+	         result = -1;
+	      } finally {
+	         close();
+	      }
+	      
+	      return result;
 	}
 	
 	

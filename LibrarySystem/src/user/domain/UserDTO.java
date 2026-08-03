@@ -12,10 +12,12 @@ public class UserDTO extends CommonMember {
 	private int point;                    // 포인트  default 0
 	private int overdue_fee;              // 연체료  default 0
  	
- 	
+	// 대출여부 한글 표시용
+ 	private String loan_stop_kor; 
  	
  	// method
  	
+	
 	public int getUser_seq() {
 		return user_seq;
 	}
@@ -48,6 +50,15 @@ public class UserDTO extends CommonMember {
 		this.overdue_fee = overdue_fee;
 	}
 	
+	// 대출여부 한글 표시용
+	public String getLoan_stop_kor() {
+		return loan_stop_kor;
+	}
+
+	public void setLoan_stop_kor(String loan_stop_kor) {
+		this.loan_stop_kor = loan_stop_kor;
+	}
+
 	
 	@Override
 	public String toString() {

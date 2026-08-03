@@ -231,7 +231,11 @@ public class UserDAO_imple implements UserDAO {
 			try {
 				String sql = " select USER_SEQ, USER_ID, USER_PW, USER_NAME, USER_TEL, POINT "
 						+ "    , to_char(USER_REGISTERDAY, 'yyyy-mm-dd') AS USER_REGISTERDAY "
-						+ "    , LOAN_STOP, OVERDUE_FEE "
+						+ "    , CASE "
+						+ "       WHEN LOAN_STOP = 0 THEN '대출 가능' "
+						+ "       WHEN LOAN_STOP = 1 THEN '대출 정지' "
+						+ "       END AS LOAN_STOP "
+						+ "		, OVERDUE_FEE "
 						+ " from TBL_USER "; 
 				
 				switch (sortChoice) {
@@ -270,7 +274,7 @@ public class UserDAO_imple implements UserDAO {
 					mbrDto.setTel(rs.getString("USER_TEL"));
 					mbrDto.setPoint(rs.getInt("POINT"));
 					mbrDto.setRegisterday(rs.getString("USER_REGISTERDAY"));
-					mbrDto.setLoan_stop(rs.getInt("LOAN_STOP"));
+					mbrDto.setLoan_stop_kor(rs.getString("LOAN_STOP"));
 					mbrDto.setOverdue_fee(rs.getInt("OVERDUE_FEE"));
 //							mbrDto.setStatus(rs.getInt("status"));	
 					
@@ -431,185 +435,306 @@ public class UserDAO_imple implements UserDAO {
 		
 		
 		
+		 //===도서 검색 메서드===//
+        @Override
+        public List<BookDTO> searchBook(String type, String keyword) {
+           List<BookDTO> list = new ArrayList<>();
+           
+           
+            try { 
+               String sql = " " ;
+               
+                // 도서검색 후 조회 sql문
+               
+               if (type.equals("book_name")) { 
+                    sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
+                             + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
+                             + " AND a.loan_status =0 AND a.book_status = '정상' ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
+                             + " THEN '대출가능' "
+                             + " ELSE '대출불가' "
+                             + " END AS 대출상세, " // 대출상세 조회
+                             + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn AND a.book_status = '정상' "
+                             + " AND ( SELECT COUNT(*) "
+                             + " FROM tbl_resv_detail c "
+                             + " WHERE c.book_id = a.book_id "
+                             + " ) < 2 "
+                             + " ) "
+                                + " THEN '예약가능' "
+                                + " ELSE '예약불가' "
+                                + " END AS 예약상세 " //예약상세 조회
+                             + " FROM tbl_book b "
+                             + " WHERE b.book_name LIKE ?";
+               }
+               else if (type.equals("author")) {
+                  
+                  sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
+                             + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
+                             + " AND a.loan_status =0 AND a.book_status = '정상' ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
+                             + " THEN '대출가능' "
+                             + " ELSE '대출불가' "
+                             + " END AS 대출상세, " // 대출상세 조회
+                             + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn AND a.book_status = '정상' "
+                             + " AND ( SELECT COUNT(*) "
+                             + " FROM tbl_resv_detail c "
+                             + " WHERE c.book_id = a.book_id "
+                             + " ) < 2 "
+                             + " ) "
+                                + " THEN '예약가능' "
+                                + " ELSE '예약불가' "
+                                + " END AS 예약상세 " //예약상세 조회
+                             + " FROM tbl_book b "
+                             + " WHERE b.author LIKE ?";
+               }
+               else if (type.equals("publisher")) {
+                  sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
+                             + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
+                             + " AND a.loan_status =0 AND a.book_status = '정상' ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
+                             + " THEN '대출가능' "
+                             + " ELSE '대출불가' "
+                             + " END AS 대출상세, " // 대출상세 조회
+                             + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn AND a.book_status = '정상' "
+                             + " AND ( SELECT COUNT(*) "
+                             + " FROM tbl_resv_detail c "
+                             + " WHERE c.book_id = a.book_id "
+                             + " ) < 2 "
+                             + " ) "
+                                + " THEN '예약가능' "
+                                + " ELSE '예약불가' "
+                                + " END AS 예약상세 " //예약상세 조회
+                             + " FROM tbl_book b "
+                             + " WHERE b.publisher LIKE ?";
+               }
+               else if (type.equals("fk_category_id")) {
+                  sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
+                             + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
+                             + " AND a.loan_status =0 AND a.book_status = '정상' ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
+                             + " THEN '대출가능' "
+                             + " ELSE '대출불가' "
+                             + " END AS 대출상세, " // 대출상세 조회
+                             + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn AND a.book_status = '정상' "
+                             + " AND ( SELECT COUNT(*) "
+                             + " FROM tbl_resv_detail c "
+                             + " WHERE c.book_id = a.book_id "
+                             + " ) < 2 "
+                             + " ) "
+                                + " THEN '예약가능' "
+                                + " ELSE '예약불가' "
+                                + " END AS 예약상세 " //예약상세 조회
+                             + " FROM tbl_book b "
+                             + " WHERE b.fk_category_id LIKE ?";
+               }
+               
+               pstmt = conn.prepareStatement(sql);
+               pstmt.setString(1, "%" + keyword + "%");
+                   rs = pstmt.executeQuery();
+
+                   while(rs.next()) {
+
+                       BookDTO dto = new BookDTO();
+                       dto.setIsbn(rs.getInt("isbn"));
+                       dto.setBook_name(rs.getString("book_name"));
+                       dto.setAuthor(rs.getString("author"));
+                       dto.setPublisher(rs.getString("publisher"));
+                       dto.setFk_category_id(rs.getString("fk_category_id"));
+                       dto.setLoanStatus(rs.getString("대출상세"));
+                       dto.setResvStatus(rs.getString("예약상세"));
+                       list.add(dto);
+                   } //end of while ----------------
+               
+               
+            } catch(SQLException e)  {
+               e.printStackTrace();
+            }finally {
+               close();
+            }  
+         
+
+           return list;
+     } //end of public List<BookDTO> searchBook(String type, String keyword)---     
 		
-	         //===도서 검색 메서드===//
-			@Override
-			public List<BookDTO> searchBook(String type, String keyword) {
-				List<BookDTO> list = new ArrayList<>();
-				
-				
-				 try { 
-					 String sql = " " ;
-					 
-					  // 도서검색 후 조회 sql문
-					 
-					 if (type.equals("book_name")) { 
-				         sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
-				                  + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
-				                  + " AND a.loan_status =0 ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
-				                  + " THEN '대출가능' "
-				                  + " ELSE '대출불가' "
-				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
-	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
-	                              + " THEN '예약가능' "
-	                              + " ELSE '예약불가' "
-	                              + " END AS 예약상세 " //예약상세 조회
-				                  + " FROM tbl_book b "
-				                  + " WHERE b.book_name LIKE ?";
-					 }
-					 else if (type.equals("author")) {
-						 
-						 sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
-				                  + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
-				                  + " AND a.loan_status =0 ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
-				                  + " THEN '대출가능' "
-				                  + " ELSE '대출불가' "
-				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
-	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
-	                              + " THEN '예약가능' "
-	                              + " ELSE '예약불가' "
-	                              + " END AS 예약상세 " //예약상세 조회
-				                  + " FROM tbl_book b "
-				                  + " WHERE b.author LIKE ?";
-					 }
-					 else if (type.equals("publisher")) {
-						 sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
-				                  + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
-				                  + " AND a.loan_status =0 ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
-				                  + " THEN '대출가능' "
-				                  + " ELSE '대출불가' "
-				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
-	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
-	                              + " THEN '예약가능' "
-	                              + " ELSE '예약불가' "
-	                              + " END AS 예약상세 " //예약상세 조회
-				                  + " FROM tbl_book b "
-				                  + " WHERE b.publisher LIKE ?";
-					 }
-					 else if (type.equals("fk_category_id")) {
-						 sql=  " SELECT b.isbn, b.book_name, b.author, b.publisher, b.fk_category_id, "
-				                  + " CASE WHEN EXISTS( SELECT 1 FROM tbl_loan_book a WHERE a.isbn=b.isbn "
-				                  + " AND a.loan_status =0 ) "  // 대여상태가 0인 행이 한개라도 존재하는지 확인
-				                  + " THEN '대출가능' "
-				                  + " ELSE '대출불가' "
-				                  + " END AS 대출상세, " // 대출상세 조회
-				                  + " CASE WHEN EXISTS ( SELECT 1 FROM tbl_loan_book a WHERE a.isbn = b.isbn "
-	                              + " AND NOT EXISTS ( SELECT 1 FROM tbl_resv_detail c WHERE c.book_id = a.book_id ) ) "
-	                              + " THEN '예약가능' "
-	                              + " ELSE '예약불가' "
-	                              + " END AS 예약상세 " //예약상세 조회
-				                  + " FROM tbl_book b "
-				                  + " WHERE b.fk_category_id LIKE ?";
-					 }
-					 
-					 pstmt = conn.prepareStatement(sql);
-					 pstmt.setString(1, "%" + keyword + "%");
-				        rs = pstmt.executeQuery();
-
-				        while(rs.next()) {
-
-				            BookDTO dto = new BookDTO();
-				            dto.setIsbn(rs.getInt("isbn"));
-				            dto.setBook_name(rs.getString("book_name"));
-				            dto.setAuthor(rs.getString("author"));
-				            dto.setPublisher(rs.getString("publisher"));
-				            dto.setFk_category_id(rs.getString("fk_category_id"));
-				            dto.setLoanStatus(rs.getString("대출상세"));
-				            dto.setResvStatus(rs.getString("예약상세"));
-				            list.add(dto);
-				        } //end of while ----------------
-					 
-					 
-				 } catch(SQLException e)  {
-					 e.printStackTrace();
-				 }finally {
-					 close();
-				 }  
-		    
-
-				return list;
-		} //end of public List<BookDTO> searchBook(String type, String keyword)---
-
 		
-		
-		//===도서 예약 메서드===//
-		@Override
-		public int reservation(int user_seq, int isbn) {
-			int result=0;
-			
-			try {
-				String sql = " SELECT a.book_id "
-		                  + " FROM tbl_loan_book a "
-		                  + " WHERE a.isbn = ? "
-		                  + " AND NOT EXISTS ( "
-		                  + " SELECT 1 "
-		                  + " FROM tbl_resv_detail c "
-		                  + " WHERE c.book_id = a.book_id ) "
-		                  + " ORDER BY a.book_id "
-		                  + " FETCH FIRST 1 ROW ONLY "; //에약가능한 도서ID 조회하기 sql문
+      //== 예약 신청 메서드 ==//
+        @Override
+        public int reservation(int user_seq, int isbn) {
 
-				pstmt = conn.prepareStatement(sql);
-				pstmt.setInt(1,isbn);
+            int result = 0;
 
-				rs = pstmt.executeQuery();
+            try {
 
-				int book_id = 0;
-
-				if(rs.next()) {
-				    book_id = rs.getInt("book_id");
-				}
-				
-				// 1. 자동 커밋 해제 (트랜잭션 시작)
                 conn.setAutoCommit(false);
-				
-					 sql = " INSERT INTO tbl_reservation(resv_id,fk_user_seq, resv_date) "
-							    + " VALUES(resv_id.nextval, ?, SYSDATE) ";
-                           //예약 데이터 추가 sql문
-							pstmt = conn.prepareStatement(sql);
-							pstmt.setInt(1,user_seq);
-
-							
-							int n1 = pstmt.executeUpdate();    // 첫 번째 SQL 실행
-			                   pstmt.close(); // 첫 번째 PreparedStatement 사용 후 닫기
 
 
-					
-					
-					 sql = " INSERT INTO tbl_resv_detail(resv_detail_id,fk_resv_id,book_id ) "
-							    +" VALUES(resv_detail_id.nextval, resv_id.currval , ?) ";
-					   //예약 상세 데이터 추가 sql문
-					  pstmt = conn.prepareStatement(sql);
-					  pstmt.setInt(1, book_id);
-					 
-					 
-					  
-					  int n2 = pstmt.executeUpdate();    // 두 번째 SQL 실행
-	                   
-	                   // 2. 두 테이블에 모두 성공적으로 INSERT되었는지 검증
-	                   if (n1 == 1 && n2 == 1) {
-	                       conn.commit(); // 데이터베이스 반영 확정
-	                       result = 1;
-	                   } else {
-	                       conn.rollback(); // 하나라도 실패 시 이전 작업 취소
-	                   }
-	                // 1. 자동 커밋 해제 (트랜잭션 시작)
-	                   conn.setAutoCommit(true);
-					
-				
-				
-			}
-			  catch(SQLException e)  {
-				 e.printStackTrace();
-			 }finally {
-				 close();
-			 }  
-	    
+                int resv_id = 0;
 
-			 return result;
-		}
+
+
+                // 1. 기존 회원 예약번호 조회
+                String sql =
+                      " SELECT resv_id "
+                    + " FROM tbl_reservation "
+                    + " WHERE fk_user_seq = ? ";
+
+
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setInt(1, user_seq);
+
+
+                rs = pstmt.executeQuery();
+
+
+
+                if(rs.next()) {
+
+                    // 기존 예약번호 사용
+                    resv_id = rs.getInt("resv_id");
+
+                }
+
+
+
+                // 2. 예약번호가 없으면 생성
+                if(resv_id == 0) {
+
+
+                    sql =
+                          " INSERT INTO tbl_reservation "
+                        + " (resv_id, fk_user_seq, resv_date) "
+                        + " VALUES(resv_id.nextval, ?, SYSDATE) ";
+
+
+                    pstmt = conn.prepareStatement(sql);
+
+                    pstmt.setInt(1, user_seq);
+
+
+                    int n1 = pstmt.executeUpdate();
+
+
+                    if(n1 != 1) {
+
+                        conn.rollback();
+                        return 0;
+
+                    }
+
+
+
+                    // 방금 생성한 예약번호 가져오기
+                    sql =
+                          " SELECT resv_id.currval AS resv_id "
+                        + " FROM dual ";
+
+
+                    pstmt = conn.prepareStatement(sql);
+
+                    rs = pstmt.executeQuery();
+
+
+
+                    if(rs.next()) {
+
+                        resv_id = rs.getInt("resv_id");
+
+                    }
+
+                }
+
+
+                // 3. 예약 가능한 실제 도서 ID 찾기
+               sql=" SELECT a.book_id "
+                + " FROM tbl_loan_book a "
+                + " WHERE a.isbn = ? "
+                + "  AND a.book_status = '정상' "
+                + "  AND ( SELECT COUNT(*) "
+                + " FROM tbl_resv_detail c "
+                + "  WHERE c.book_id = a.book_id ) < 2 "
+                + " ORDER BY a.book_id "
+                +" FETCH FIRST 1 ROW ONLY ";
+
+
+                pstmt = conn.prepareStatement(sql);
+
+                pstmt.setInt(1, isbn);
+
+
+                rs = pstmt.executeQuery();
+
+
+
+                int book_id = 0;
+
+
+                if(rs.next()) {
+
+                    book_id = rs.getInt("book_id");
+
+                }
+                else {
+
+                    conn.rollback();
+                    return 0;
+
+                }
+
+
+
+                // 4. 예약 상세 추가
+                sql =
+                      " INSERT INTO tbl_resv_detail "
+                    + " (resv_detail_id, fk_resv_id, book_id) "
+                    + " VALUES(resv_detail_id.nextval, ?, ?) ";
+
+
+                pstmt = conn.prepareStatement(sql);
+
+
+                pstmt.setInt(1, resv_id);
+                pstmt.setInt(2, book_id);
+
+
+
+                int n2 = pstmt.executeUpdate();
+
+
+
+                if(n2 == 1) {
+
+                    conn.commit();
+                    result = 1;
+
+                }
+                else {
+
+                    conn.rollback();
+
+                }
+
+
+
+                conn.setAutoCommit(true);
+
+
+
+            } catch(SQLException e) {
+
+                e.printStackTrace();
+
+                try {
+                    conn.rollback();
+                } catch(SQLException e2) {
+                    e2.printStackTrace();
+                }
+
+
+            } finally {
+
+                close();
+
+            }
+
+
+            return result;
+        }
 		
 		
 				
@@ -772,8 +897,9 @@ public class UserDAO_imple implements UserDAO {
 		try {
 		pstmt = conn.prepareStatement(sql);
 		
-		pstmt.setInt(1, userSeq);
-		pstmt.setInt(2, delayedDays);
+		pstmt.setInt(1, delayedDays);
+		pstmt.setInt(2, userSeq);
+		
 		
 		result = pstmt.executeUpdate();
 		

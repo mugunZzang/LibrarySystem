@@ -210,11 +210,12 @@ public class LoanDetailDAO_imple implements LoanDetailDAO {
 		int result = 0;
 		
 		String sql = " SELECT "
-				+ "    CASE WHEN SYSDATE > B.RETURN_DUE_DATE THEN TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD') - TO_DATE(TO_CHAR(B.RETURN_DUE_DATE, 'YYYYMMDD'), 'YYYYMMDD') "
-				+ "    ELSE 0 END AS OVERDUE_DAYS "
+				+ " CASE WHEN SYSDATE > B.RETURN_DUE_DATE "
+				+ " THEN TRUNC(SYSDATE) - TO_DATE(B.RETURN_DUE_DATE, 'RR-MM-DD') "
+				+ " ELSE 0 END AS OVERDUE_DAYS "
 				+ " FROM "
-				+ "    TBL_LOAN_DETAIL A JOIN TBL_LOAN B "
-				+ "    ON A.LOAN_NO = B.LOAN_NO "
+				+ " TBL_LOAN_DETAIL A JOIN TBL_LOAN B "
+				+ " ON A.LOAN_NO = B.LOAN_NO "
 				+ " WHERE A.LOAN_DETAIL_NO = ? ";
 		
 		try {
