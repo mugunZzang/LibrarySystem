@@ -39,7 +39,7 @@ public class BookDAO_imple implements BookDAO {
 	public int insertBook(BookDTO bookDTO) {
 		int result = 0;
 		
-		String sql = "INSERT INTO TBL_BOOK (ISBN, FK_CATEGORY_ID, BOOK_NAME, PUB_YEAR, CONTENTS, RENTAL_FEE, AUTHOR, PUBLISHER) "
+		String sql = "INSERT INTO TBL_BOOK (ISBN, FK_CATEGORY_ID, BOOK_NAME, to_char(PUB_YEAR,'yyyy-mm-dd'), CONTENTS, RENTAL_FEE, AUTHOR, PUBLISHER) "
 				+ " VALUES (ISBN.NEXTVAL, ?, ?, TO_DATE(?, 'YYYY-MM-DD'), ?, ?, ?, ?) ";
 		
 		try {

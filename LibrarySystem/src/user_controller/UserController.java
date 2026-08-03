@@ -155,13 +155,14 @@ public class UserController {
 					    
 		                String favNo;
 		                  
-		                List<BookDTO> favBookList = new ArrayList<>();
-	                    favBookList = bookDao.bringBookList(favBookList, loginUserDto);
 	                     
 	                    do {
 		                    System.out.println("1.관심도서 조회  2.관심도서 신청  3.관심도서 삭제  4.이전");
 		                    System.out.print("▷ 메뉴번호 선택 : ");
 		                    favNo = sc.nextLine();
+		                    
+			                List<BookDTO> favBookList = new ArrayList<>();
+		                    favBookList = bookDao.bringBookList(favBookList, loginUserDto);
 		                    
 		                     
 		                    switch (favNo) {
@@ -243,6 +244,8 @@ public class UserController {
     private void favBookcancle(Scanner sc, UserDTO loginUserDto, List<BookDTO> favBookList) {
     	System.out.println(loginUserDto.getName()+"의 관심도서 목록");
         StringBuilder sb = new StringBuilder();
+        
+        boolean exist = false;
               
         for(BookDTO book : favBookList) {
              
@@ -272,12 +275,18 @@ public class UserController {
                     System.out.println("관심도서가 취소되었습니다.");
 
                     favBookList.remove(i);
+                    
+                    exist = true;
                 }
 
                 break;
             }// end of if(isbnNo.equals(String.valueOf(book.getIsbn())))
             
         }// end of for(int i = 0; i < favBookList.size(); i++)
+        if(!exist) {
+            System.out.println("삭제하실 책 번호가 아닙니다.!!");
+         }
+
 
         
 		
@@ -988,10 +997,11 @@ public class UserController {
                            }
 			    	        break;
 		    	        }else if("n".equalsIgnoreCase(yn)) {
+		    	        	System.out.println("예약이 취소되었습니다.");
 		    				return;
 		    	        }else {
 		    	        	System.out.println("Y또는N만 입력해주세요."); //Y와N을 입력안했을 경우
-		    	        } break;
+		    	        } 
 		    	        }
 
 		    	        

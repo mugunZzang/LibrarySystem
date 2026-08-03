@@ -6,13 +6,13 @@ import java.util.Map;
 public interface LoanDAO {
 
 	// 오늘 날짜로 생성된 대여목록이 있는지 검사하는 메소드
-	String isExistTodayLoan();
+	String isExistTodayLoan(int userSeq);
 
 	// 새로운 대여목록을 삽입하는 메소드
 	int insertLoan(int userSeq, int librarianSeq);
 
 	// 가장 최근 대여목록의 대여번호 가져오기
-	int getRecentLoanNo();
+	int getRecentLoanNo(int userSeq);
 	
 	//-----------------------------------------------------
 	

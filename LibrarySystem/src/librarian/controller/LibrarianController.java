@@ -504,13 +504,18 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		
 		// 3. 수정해줄 데이터들 입력받기
-		System.out.println("도서 수정을 시작합니다. 수정을 원치않는 정보는 엔터 또는 공백을 입력하십시오.");
+		System.out.println("도서 수정을 시작합니다. 수정을 원치않는 정보는 엔터 또는 공백을 입력하십시오.\n ※ 입력을 취소하시려면 X를 입력하세요. ");
 		
 		//--------------------------------------------------------------//
 		
 		do {
-			System.out.println("▶ 도서명 : ");
+			System.out.print("▶ 도서명 : ");
 			bookName = sc.nextLine();
+			
+			if(bookName.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if(bookName.isBlank()) {
 				bookName = bookDto.getBook_name();
 				break;
@@ -525,8 +530,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		
 		do {
-			System.out.println("▶ 저자명 : ");
+			System.out.print("▶ 저자명 : ");
 			author = sc.nextLine();
+			
+			if(author.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if(author.isBlank()) {
 				author = bookDto.getAuthor();
 				break;
@@ -541,8 +551,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		
 		do {
-			System.out.println("▶ 출판사 : ");
+			System.out.print("▶ 출판사 : ");
 			publisher = sc.nextLine();
+			
+			if(publisher.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if(publisher.isBlank()) {
 				publisher = bookDto.getPublisher();
 				break;
@@ -559,8 +574,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		do {
 			try {
 				
-				System.out.println("▶ 발행년도(yyyy-MM-dd) : ");
+				System.out.print("▶ 발행년도(yyyy-MM-dd) : ");
 				pubYear = sc.nextLine();
+				
+				if(pubYear.equalsIgnoreCase("x")) {
+					return;
+				}
+				
 				if(pubYear.isBlank()) {
 					pubYear = bookDto.getPub_year();
 					break;
@@ -604,8 +624,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 			System.out.println("");
 		}
 		do {
-			System.out.println("▶ 카테고리ID : ");
+			System.out.print("▶ 카테고리ID : ");
 			fkCategoryId = sc.nextLine();
+			
+			if(fkCategoryId.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if(fkCategoryId.isBlank()) {
 				fkCategoryId = bookDto.getFk_category_id();
 				break;
@@ -631,8 +656,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		//--------------------------------------------------------------//
 		// 도서내용 입력
 		do {
-			System.out.println("▶ 도서내용 : ");
+			System.out.print("▶ 도서내용 : ");
 			contents = sc.nextLine();
+			
+			if(contents.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if(contents.isBlank()) {
 				contents = bookDto.getContents();
 				break;
@@ -649,8 +679,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		// 대여료 입력
 		do {
-			System.out.println("▶ 대여료 : ");
+			System.out.print("▶ 대여료 : ");
 			rentalFee = sc.nextLine();
+			
+			if(rentalFee.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			if (rentalFee.isBlank()) {
 				rentalFee = String.valueOf(bookDto.getRental_fee());
 				break;
@@ -871,9 +906,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 				boolean isExist = false;
 				do {
 					// 상태를 수정할 도서의 도서번호를 입력받는다.
-					System.out.print("▶ 상태를 변경할 도서의 도서번호 입력 : ");
+					System.out.print("▶ 상태를 변경할 도서의 도서번호 입력(또는 0 입력 시 취소) : ");
 					String bookId = sc.nextLine();
 					
+					if(bookId.equals("0")) {
+						return;
+					}
 					
 					// 해당 도서번호가 존재하는지 검사한다.
 					for (Map<String,String> map : loanBookList) {
@@ -1002,10 +1040,16 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		//--------------------------------------------------------------//
 		
+		System.out.println("※ 입력 도중 취소하시려면 X를 입력하세요.");
+		
 		// 도서명
 		do {
-			System.out.println("▶ 도서명 : ");
+			System.out.print("▶ 도서명 : ");
 			bookName = sc.nextLine();
+			
+			if(bookName.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			if(bookName.isBlank()) {
 				System.out.println("[경고] 도서명은 공백일 수 없습니다.\n");
@@ -1020,8 +1064,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		// 저자명
 		do {
-			System.out.println("▶ 저자명 : ");
+			System.out.print("▶ 저자명 : ");
 			author = sc.nextLine();
+			
+			if(author.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			if(author.isBlank()) {
 				System.out.println("[경고] 저자명은 공백일 수 없습니다.\n");
@@ -1036,8 +1084,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		// 출판사
 		do {
-			System.out.println("▶ 출판사 : ");
+			System.out.print("▶ 출판사 : ");
 			publisher = sc.nextLine();
+			
+			if(publisher.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			if(publisher.isBlank()) {
 				System.out.println("[경고] 출판사는 공백일 수 없습니다.\n");
@@ -1056,8 +1108,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		do {
 			try {
 				
-				System.out.println("▶ 발행년도(yyyy-MM-dd) : ");
+				System.out.print("▶ 발행년도(yyyy-MM-dd) : ");
 				pubYear = sc.nextLine();
+				
+				if(pubYear.equalsIgnoreCase("x")) {
+					return;
+				}
 				
 				Date today = new Date();
 				// 'yyyy-dd-mm'의 형태로 받는다.
@@ -1097,8 +1153,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 			System.out.println("");
 		}
 		do {
-			System.out.println("▶ 카테고리ID : ");
+			System.out.print("▶ 카테고리ID : ");
 			fkCategoryId = sc.nextLine();
+			
+			if(fkCategoryId.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			boolean isExistCategoryId = false;
 			for(Map<String, String> map : categoryList) {
@@ -1120,9 +1180,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		//--------------------------------------------------------------//
 		// 도서내용 입력
 		do {
-			System.out.println("▶ 도서내용 : ");
+			System.out.print("▶ 도서내용 : ");
 			contents = sc.nextLine();
 			// 도서내용은 100자를 넘지 않도록 한다.
+			
+			if(contents.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			if(contents.isBlank()) {
 				System.out.println("[경고] 도서내용은 공백일 수 없습니다.\n");
@@ -1137,9 +1201,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		// 대여료 입력
 		do {
-			System.out.println("▶ 대여료 : ");
+			System.out.print("▶ 대여료 : ");
 			rentalFee = sc.nextLine();
 			// 대여료는 양수인 정수로만 입력받는다.
+			
+			if(rentalFee.equalsIgnoreCase("x")) {
+				return;
+			}
 			
 			if(rentalFee.isBlank()) {
 				System.out.println("[경고] 대여료는 공백일 수 없습니다.\n");
@@ -1164,8 +1232,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		// 수량 입력
 		do {
-			System.out.println("▶ 도서수량 : ");
+			System.out.print("▶ 도서수량 : ");
 			bookCnt = sc.nextLine();
+			
+			if(bookCnt.equalsIgnoreCase("x")) {
+				return;
+			}
+			
 			// 수량은 양수인 정수만 입력받고, 수량만큼 대여도서에 삽입한다.
 			if(bookCnt.isBlank()) {
 				bookCnt = "0";
@@ -1321,11 +1394,15 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 	
 			switch (menuNo) {
 			case "1":	// 예약대출
-				reservedRent(sc);
-				break;
+				
+				reservedRent(sc);			
+	               
+	            break;
 			case "2":	// 일반대출
-				normalRent(sc);
-				break;
+				
+				normalRent(sc);           
+	            	            
+	            break;
 			case "3":	// 반납
 				returnBooks(sc);
 				break;
@@ -1521,8 +1598,12 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		do {
 			// 회원id 입력
-			System.out.print("▶ 회원id 입력 : ");
+			System.out.print("▶ 회원id 입력(또는 0 입력 시 취소) : ");
 			userId = sc.nextLine();
+			
+			if(userId.equals("0")) {
+				return;
+			}
 			
 			// 해당 회원이 존재하지 않다면
 			if (!userDao.checkIdExists(userId)) {
@@ -1577,9 +1658,21 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 		
 		do {
 			// 대여할 도서Id 입력받기
-			System.out.print("▶ 대여할 도서ID 입력 : ");
+			System.out.print("▶ 대여할 도서ID 입력(또는 0 입력 시 취소) : ");
 			bookId = sc.nextLine();
 		
+			if(bookId.equals("0")) {
+				return;
+			}
+			
+			// 입력받은 도서 id가 정수가 아닌경우
+			try {
+				int c = Integer.parseInt(bookId);
+			} catch(NumberFormatException e) {
+				System.out.println("[경고] 도서ID는 정수로 입력하십시오.\n");
+				continue;
+			}
+			
 			// 해당 도서id가 존재하지 않다면
 			if (!loanBookDao.bookIdExist(bookId)) {
 				System.out.println("[경고] 해당 도서는 존재하지 않습니다.\n");
@@ -1637,7 +1730,7 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 					
 					
 					// 이미 오늘 날짜로 생성된 대여목록이 있는지 검사한다.
-					String loanNoTemp = loanDao.isExistTodayLoan();
+					String loanNoTemp = loanDao.isExistTodayLoan(userSeq);
 					// 아직 없다면
 					if (loanNoTemp.isBlank()) {
 
@@ -1654,7 +1747,7 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 					}
 					
 					// 당일 날짜의 대여목록의 대여번호를 가져오고, 
-					int loanNo = loanDao.getRecentLoanNo();
+					int loanNo = loanDao.getRecentLoanNo(userSeq);
 
 					// 그 번호를 부모삼는 대여상세를 생성한다.
 					int n = loanDetailDao.insertResvDetail(loanNo, bookId);		// 생성 성공하면 1, 실패시 -1
@@ -1773,9 +1866,13 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 					String bookId = "";			// 도서번호
 					
 					do {
-						// 대여처리할 예약상세번호 입력받기
-						System.out.print("▶ 대여처리할 예약상세번호 입력 : ");
+						// 대여처리할 예약상세번호 입력받기						
+						System.out.print("▶ 대여처리할 예약상세번호 입력(또는 0 입력 시 취소) : ");
 						String no = sc.nextLine();
+						
+						if(no.equals("0")) {
+							return;
+						}
 						
 						// 입력받은 번호가 List 에 존재하는지 검사
 						boolean isExist = false;
@@ -1848,7 +1945,7 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 										
 										
 										// 이미 오늘 날짜로 생성된 대여목록이 있는지 검사한다.
-										String loanNoTemp = loanDao.isExistTodayLoan();
+										String loanNoTemp = loanDao.isExistTodayLoan(Integer.parseInt(userSeq));
 										// 아직 없다면
 										if (loanNoTemp.isBlank()) {
 
@@ -1865,7 +1962,7 @@ private void userManagement(LibrarianDTO librarian_dto, Scanner sc) {
 										}
 										
 										// 당일 날짜의 대여목록의 대여번호를 가져오고, 
-										int loanNo = loanDao.getRecentLoanNo();
+										int loanNo = loanDao.getRecentLoanNo(Integer.parseInt(userSeq));
 
 										// 그 번호를 부모삼는 대여상세를 생성한다.
 										n = loanDetailDao.insertResvDetail(loanNo, bookId);		// 생성 성공하면 1, 실패시 -1

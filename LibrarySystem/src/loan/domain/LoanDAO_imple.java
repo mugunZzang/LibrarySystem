@@ -32,16 +32,18 @@ public class LoanDAO_imple implements LoanDAO {
 	
 	// 오늘 날짜로 생성된 대여목록이 있는지 검사하는 메소드
 	@Override
-	public String isExistTodayLoan() {
+	public String isExistTodayLoan(int userSeq) {
 		String result = "";
 		
 		String sql = " SELECT LOAN_NO "
 				+ " FROM TBL_LOAN "
-				+ " WHERE TO_CHAR(LOAN_DATE, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD') ";
+				+ " WHERE TO_CHAR(LOAN_DATE, 'YYYYMMDD') = TO_CHAR(SYSDATE, 'YYYYMMDD')"
+				+ " AND USER_SEQ = ? ";
 		
 		try {
 			
 			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, userSeq);
 			
 			rs = pstmt.executeQuery();
 			
@@ -103,18 +105,20 @@ public class LoanDAO_imple implements LoanDAO {
 	
 	// 가장 최근 대여목록의 대여번호 가져오기
 	@Override
-	public int getRecentLoanNo() {
+	public int getRecentLoanNo(int userSeq) {
 		int result = 0;
 		
 		// 대여목록을 가져와서 대여일자순(최신순 = DESC)으로 정렬해서 가장 첫번째 행만 갖고오기
 		String sql = " SELECT LOAN_NO "
-				+ " FROM TBL_LOAN "
+				+ " FROM TBL_LOAN"
+				+ " WHERE USER_SEQ = ? "
 				+ " ORDER BY LOAN_DATE DESC "
 				+ " FETCH FIRST 1 ROWS ONLY ";
 		
 		try {
 			
 			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, userSeq);
 			
 			rs = pstmt.executeQuery();
 			
@@ -373,7 +377,7 @@ public class LoanDAO_imple implements LoanDAO {
 	             
 	             String sql = " SELECT loan_detail_no, book_name, to_char(RETURN_DUE_DATE, 'yyyy-mm-dd') as RETURN_DUE_DATE "
 	                        + " FROM VIEW_LOAN_BOOK "
-	                         + " WHERE user_seq = TO_NUMBER(?) ";
+	                         + " WHERE user_seq = TO_NUMBER(?) AND return = 0 ";
 	            
 	             
 	             pstmt = conn.prepareStatement(sql);
